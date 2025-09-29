@@ -58,6 +58,10 @@ export class ClientService extends HttpService {
       return this.get(environment.apiUrl, '/clientes');
   }
 
+  getByNroDocumentoIdentidad(nroDocumentoIdentidad: number) {
+    return this.get(environment.apiUrl, `/cliente/${nroDocumentoIdentidad}`);
+  }
+
   /**
    * Persists client data
    * @param data 

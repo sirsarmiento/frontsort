@@ -18,12 +18,6 @@ export class BillComponent implements OnInit {
   displayedColumns: string[] = ['cedula','cliente', 'local', 'numero', 'fecha', 'monto', 'cupones' , 'actions'];
   dataSource: MatTableDataSource<Bill>;
   totalDepreciacionMensual: number = 0;
-
-  bills: any[] = [
-    {cedula: '13.044.519', cliente: 'Sir Sarmiento', local: 'Farmatodo', numero: '09081290', monto: 1500.20, montoMin: 1200.20, fecha: '2025-09-28', print: 0},
-    {cedula: '13.033.501', cliente: 'Ernesto Perez', local: 'Locatel', numero: '09081211', monto: 2700.10,  montoMin: 1200.20, fecha: '2025-09-27', print: 1},
-  ];
-
     
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
@@ -35,12 +29,12 @@ export class BillComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.initTable(this.bills);
-    //this.getBills();
+    this.getBills();
   }
 
   getBills(){
     this.billService.getAll().subscribe((resp: any) => {
+      console.log(resp.data);
       this.initTable(resp.data);
     });
   }

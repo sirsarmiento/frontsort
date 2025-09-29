@@ -25,7 +25,8 @@ export class BillService extends HttpService {
       cliente: 0,
       monto: 0,
       montoMin: 0,
-      tasa: 0
+      tasa: 0,
+      print: 0
     };
 
   }
@@ -61,7 +62,7 @@ export class BillService extends HttpService {
     try {
       await firstValueFrom(this.post(environment.apiUrl, '/factura', data));
       this.toastrService.success('Factura registrada con éxito.');
-      this.router.navigate(['/facturas']);
+      this.router.navigate(['/bills']);
     } catch (error: any) {        
       if (error.status == 409) {
         this.toastrService.error('', error.error.msg);
@@ -77,7 +78,7 @@ export class BillService extends HttpService {
       await firstValueFrom(this.put(environment.apiUrl, `/factura/${id}`, data));
       this.resetData(); //// Resetear los valores del observable después de actualizar
       this.toastrService.success('Factura actualizada con éxito.');
-      this.router.navigate(['/facturas']);
+      this.router.navigate(['/bills']);
     } catch (error: any) {
       if (error.status == 409) {
         this.toastrService.error('', error.msg);

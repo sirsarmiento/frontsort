@@ -86,18 +86,25 @@ export class AddBillComponent implements OnInit {
 
   searchClient  (){
     if(this.f.nroDocumentoIdentidad.value.length > 6){
-      console.log('paso');
-      // this.clientService.getByNroDocumentoIdentidad(this.f.nroDocumentoIdentidad.value).subscribe((resp: any) => {
-      //   if(resp.data.length > 0){
-      //     const data = resp.data[0];
-      //     this.cliente = data.id; 
-      //   }
-      //  });
+      this.clientService.getByNroDocumentoIdentidad(this.f.nroDocumentoIdentidad.value).subscribe((resp: any) => {
+        this.cliente = resp.id;
+        this.f.tipoDocumentoIdentidad.setValue(resp.tipoDocumentoIdentidad);
+        this.f.email.setValue(resp.email);  
+        this.f.primerNombre.setValue(resp.primerNombre);
+        this.f.segundoNombre.setValue(resp.segundoNombre);
+        this.f.primerApellido.setValue(resp.primerApellido);
+        this.f.segundoApellido.setValue(resp.segundoApellido);
+        this.f.estado.setValue(resp.estado.id);
+        this.getCiudades(resp.estado.id);
+        this.f.ciudad.setValue(resp.ciudad.id);
+        this.f.direccion.setValue(resp.direccion);
+        this.f.codTelefono.setValue(resp.codTelefono);
+        this.f.nroTelefono.setValue(resp.nroTelefono);
+       });
     }
   }
 
   getMontoMin(id: number){
-    console.log(id);
     this.locales.forEach( l => {
       if(l.id == id){
         this.montoMin = l.monto * this.tasa;
@@ -109,7 +116,7 @@ export class AddBillComponent implements OnInit {
     this.data$.subscribe( data => {
       if(data.id > 0){
         // this.f.tipoDocumentoIdentidad.setValue(data.tipoDocumentoIdentidad);
-        // this.f.nroDocumentoIdentidad.setValue(data.nroDocumentoIdentidad);
+        // this.f.nroDocumentoIdentidad.setValue(data.nroDocumentoIdentidad);getCiudadesciudad
         // this.f.email.setValue(data.email);
         // this.f.primerNombre.setValue(data.primerNombre);
         // this.f.segundoNombre.setValue(data.segundoNombre);
@@ -141,22 +148,22 @@ export class AddBillComponent implements OnInit {
 
   myFormValues() {
     this.form = this.formBuilder.group({
-      tipoDocumentoIdentidad: ['V',Validators.required],
-      nroDocumentoIdentidad: ['13044519',Validators.required],
-      email: ['sirsarmiento@gmail.com',Validators.required],
-      primerNombre: ['Sir',Validators.required],
-      segundoNombre: ['Oscar',Validators.required],
-      primerApellido: ['Sarmiento',Validators.required],
+      tipoDocumentoIdentidad: ['',Validators.required],
+      nroDocumentoIdentidad: ['',Validators.required],
+      email: ['',Validators.required],
+      primerNombre: ['',Validators.required],
+      segundoNombre: ['',Validators.required],
+      primerApellido: ['',Validators.required],
       segundoApellido: [''],
       estado: ['',Validators.required],
       ciudad: ['',Validators.required],
-      direccion: ['Puelo Arriba',Validators.required],
-      codTelefono: ['0414',Validators.required],
-      nroTelefono: ['2781730',Validators.required],
-      nroFactura: ['098798798',Validators.required],
+      direccion: ['',Validators.required],
+      codTelefono: ['',Validators.required],
+      nroTelefono: ['',Validators.required],
+      nroFactura: ['',Validators.required],
       fecha: ['',Validators.required],
-      hora: ['10:09',Validators.required],
-      local: ['Test',Validators.required],
+      hora: ['',Validators.required],
+      local: ['',Validators.required],
       monto: ['',Validators.required],
     })
   }
@@ -174,17 +181,6 @@ export class AddBillComponent implements OnInit {
 
     this.loading = true;
 
-    const factura: Bill = {
-      numero: this.f.nroFactura.value,
-      fecha: this.f.fecha.value,
-      hora: this.f.hora.value,
-      monto: this.f.monto.value,
-      montoMin: this.montoMin,
-      tasa: this.tasa,
-      local: this.f.local.value,
-      cliente: this.cliente,
-    }
-
     const cliente: Client = {
       tipoDocumentoIdentidad: this.f.tipoDocumentoIdentidad.value,
       nroDocumentoIdentidad: this.f.nroDocumentoIdentidad.value,
@@ -200,27 +196,38 @@ export class AddBillComponent implements OnInit {
       nroTelefono: this.f.nroTelefono.value,
     }
 
+    const factura: Bill = {
+      numero: this.f.nroFactura.value,
+      fecha: this.f.fecha.value,
+      hora: this.f.hora.value,
+      monto: this.f.monto.value,
+      montoMin: Number(this.montoMin.toFixed(2)),
+      tasa: this.tasa,
+      local: this.f.local.value,
+      cliente: this.cliente,
+      print: 0 
+    }
+
     console.log(cliente);
     console.log(factura);
 
-    // if(this.id == 0 || this.id == undefined){
-    //   //Si el cliente no existe guardamos cliente, capturamos el id y guardamos facturas
+    if(this.cliente == 0 || this.cliente == undefined){
+      //Si el cliente no existe guardamos cliente, capturamos el id y guardamos facturas
 
-    //   this.clientService.add(cliente).subscribe({
-    //     next: ((resp: any) => {
-    //       console.log(resp, resp['clienteId']);
-    //       factura.cliente = resp['clienteId'];
-    //       console.log(factura);  
-    //     }),
-    //     error: (err) => {
-    //       this.toastrService.error('', 'Ha ocurrido un error' )
-    //     },
-    //     complete: () => this.billService.add(factura)
-    //   })
-    // }else{
-    //   // Si el cliente existe tomamos el id del cliente y solo guardamos la factura
-    //    this.billService.add(factura);
-    // }
+      this.clientService.add(cliente).subscribe({
+        next: ((resp: any) => {
+          factura.cliente = resp.id;
+        }),
+        error: () => {
+          this.toastrService.error('', 'Ha ocurrido un error' )
+        },
+        complete: () => this.billService.add(factura)
+      })
+    }else{
+      // Si el cliente existe tomamos el id del cliente y solo guardamos la factura
+      
+       this.billService.add(factura);
+    }
 
   }
 

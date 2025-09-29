@@ -9,4 +9,5 @@ export class Bill {
     tasa: number;
     local: number;
     cliente: number;
+    print: number;
 }

@@ -2,6 +2,7 @@ import { environment } from './../../../environments/environment';
 import { AuthService } from './../services/auth.service';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import Swal from 'sweetalert2';
@@ -9,7 +10,7 @@ import Swal from 'sweetalert2';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService, private toastrService: ToastrService) {}
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const isInclude = this.isOnTheBlackList(request.url, environment.endpoints.handle_error_blackList);
@@ -19,12 +20,12 @@ export class ErrorInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
             catchError(err => {
                 if (err.status === 401) {
-                    Swal.fire('Error 401',`${ err.error.msg }`,'error');
+                    this.toastrService.error('', err.error.error.msg);
                     //this.authService.logout();
                 } else if (err.status === 404) {
-                    Swal.fire('Error 404', `${ err.error.msg }`, 'error');
+                    this.toastrService.error('', err.error.msg);
                 } else if (err.status === 500) {
-                    Swal.fire('Error 500', `${ err.error.msg }`, 'error');
+                    this.toastrService.error('', err.error.msg);
                 }
 
                 const error = err.error.message || err.statusText;
