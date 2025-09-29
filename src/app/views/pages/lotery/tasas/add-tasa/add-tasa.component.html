@@ -1,0 +1,61 @@
+<div class="main-content">
+  <nav class="page-breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Tasa</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Crear</li>
+    </ol>
+  </nav>
+ 
+  <div class="card">
+    <div class="card-body">        
+      <form [formGroup]="form"> 
+        <div class="row">
+          <div class="col-12">
+            <mat-form-field>
+              <mat-label>Tasa del Día Bs.</mat-label>
+                <input type="decimal" matInput currencyMask formControlName="monto" maxlength="9" [ngClass]="{ 'is-invalid': submitted && f.monto.errors }" >
+                <mat-error *ngIf="submitted && f.monto.errors">
+                    <mat-error *ngIf="f.monto.errors.required">Ingrese tasa del día</mat-error>
+                    <mat-error *ngIf="f.monto.errors?.pattern">Tasa no valida</mat-error>
+                </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="btn-flex-end">
+              <div class="margin-button">
+                <button mat-raised-button class="button-add-color" (click)="back()">
+                  <div class="btn-content">
+                    <div class="button-txt">
+                      Regresar
+                    </div>
+                    <div class="icon">
+                      <mat-icon>undo</mat-icon>
+                    </div>
+                  </div>
+                </button>
+              </div>  
+        
+              <button  mat-raised-button [disabled]="loading" class="button-add-color" (click)="onSubmit()">
+                <div class="btn-content">
+                    <div class="button-txt">
+                      Guardar
+                    </div>
+                    <div class="icon">
+                      <mat-icon>save</mat-icon>
+                    </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+

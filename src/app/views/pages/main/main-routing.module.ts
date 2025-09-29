@@ -27,6 +27,14 @@ const routes: Routes = [
         loadChildren: () => import('../password/password.module').then(m => m.PasswordModule),
       },
       {
+        path: 'tasas',
+        loadChildren: () => import('../lotery/tasas/tasas.module').then(m => m.TasasModule)
+      },
+      {
+        path: 'locales',
+        loadChildren: () => import('../lotery/locales/locales.module').then(m => m.LocalesModule)
+      },
+      {
         path: 'bills',
         loadChildren: () => import('../lotery/bills/bills.module').then(m => m.BillsModule)
       },

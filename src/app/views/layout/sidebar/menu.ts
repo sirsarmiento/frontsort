@@ -35,6 +35,26 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
+    label: 'Tasas',
+    icon: 'briefcase',
+    subItems: [
+      {
+        label: 'Ver',
+        link: '/tasas/tasa',
+      }
+    ]
+  },
+  {
+    label: 'Locales',
+    icon: 'briefcase',
+    subItems: [
+      {
+        label: 'Ver',
+        link: '/locales/local',
+      }
+    ]
+  },
+  {
     label: 'MODULOS',
     isTitle: true
   },
@@ -47,5 +67,5 @@ export const MENU: MenuItem[] = [
         link: '/bills/bill',
       }
     ]
-  }
+  },
 ];

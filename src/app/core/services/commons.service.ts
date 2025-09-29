@@ -132,14 +132,14 @@ export class CommonsService extends HttpService {
 * Get all states by id pais
 * @returns 
 */
-  async getAllStates(id: number): Promise<Array<SelectOption>> {
+  async getAllEstados(id: number): Promise<Array<SelectOption>> {
 
-    let states: Array<SelectOption> = new Array<SelectOption>();
+    let estados: Array<SelectOption> = new Array<SelectOption>();
     const resp = await firstValueFrom(this.get(environment.apiUrl, `/estado/pais/${id}`))
-    states = resp.map((item: any) => {
+    estados = resp.map((item: any) => {
       return new SelectOption(item.id, item.nombre);
     });
-    return states;
+    return estados;
 
   }
 
@@ -165,14 +165,14 @@ export class CommonsService extends HttpService {
 * Get all city by id estados
 * @returns 
 */
-  async getAllCities(id: number): Promise<Array<SelectOption>> {
+  async getAllCiudades(id: number): Promise<Array<SelectOption>> {
 
-    let cities: Array<SelectOption> = new Array<SelectOption>();
+    let ciudades: Array<SelectOption> = new Array<SelectOption>();
     const resp = await firstValueFrom(this.get(environment.apiUrl, `/ciudad/estado/${id}`))
-    cities = resp.map((item: any) => {
+    ciudades = resp.map((item: any) => {
       return new SelectOption(item.id, item.nombre);
     });
-    return cities;
+    return ciudades;
 
   }
 

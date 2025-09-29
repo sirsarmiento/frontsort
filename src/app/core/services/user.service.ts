@@ -34,8 +34,8 @@ export class UserService extends HttpService {
     address: '',
     position: new SelectOption('',''),
     country: new SelectOption('',''),
-    state: new SelectOption('',''),
-    city: new SelectOption('',''),
+    estado: new SelectOption('',''),
+    ciudad: new SelectOption('',''),
     roles: '',
     idestructura: 0
   });
@@ -108,8 +108,8 @@ export class UserService extends HttpService {
     user.sex = resp[0].sexo
     user.address = resp[0].direccion;
     user.country = new SelectOption(resp[0].pais?.id, resp[0].pais.Nombre);
-    user.state = new SelectOption(resp[0].estado?.id, resp[0].estado.Nombre);
-    user.city = new SelectOption(resp[0].ciudad?.id, resp[0].ciudad.Nombre);
+    user.estado = new SelectOption(resp[0].estado?.id, resp[0].estado.Nombre);
+    user.ciudad = new SelectOption(resp[0].ciudad?.id, resp[0].ciudad.Nombre);
 
     if (resp[0].redes) {
       user.socialNetwork = resp[0].redes.map((item: any) => {
@@ -179,8 +179,8 @@ export class UserService extends HttpService {
       user.sex = item.sexo;
       user.address = item.direccion;
       user.country = new SelectOption(item.pais?.id);
-      user.state = new SelectOption(item.estado?.id);
-      user.city = new SelectOption(item.ciudad?.id);
+      user.estado = new SelectOption(item.estado?.id);
+      user.ciudad = new SelectOption(item.ciudad?.id);
       user.avatar = item.foto;
       return user;
     })
@@ -219,8 +219,8 @@ export class UserService extends HttpService {
       user.sex = item.sexo;
       user.address = item.direccion;
       user.country = new SelectOption(item.pais?.id);
-      user.state = new SelectOption(item.estado?.id);
-      user.city = new SelectOption(item.ciudad?.id);
+      user.estado = new SelectOption(item.estado?.id);
+      user.ciudad = new SelectOption(item.ciudad?.id);
       user.roles = item.roles;
       user.idestructura = item.idestructura
       return user;
@@ -274,8 +274,8 @@ export class UserService extends HttpService {
     user.sex = resp[0].sexo;
     user.address = resp[0].direccion;
     user.country = new SelectOption(resp[0].pais.id, resp[0].pais.Nombre);
-    user.state = new SelectOption(resp[0].estado.id, resp[0].estado.Nombre);
-    user.city = new SelectOption(resp[0].ciudad.id, resp[0].ciudad.Nombre);
+    user.estado = new SelectOption(resp[0].estado.id, resp[0].estado.Nombre);
+    user.ciudad = new SelectOption(resp[0].ciudad.id, resp[0].ciudad.Nombre);
     return user;
   }
 
@@ -359,8 +359,8 @@ export class UserService extends HttpService {
     user.sex = item.sexo;
     user.address = item.direccion;
     user.country = new SelectOption(item.pais?.id);
-    user.state = new SelectOption(item.estado?.id);
-    user.city = new SelectOption(item.ciudad?.id);
+    user.estado = new SelectOption(item.estado?.id);
+    user.ciudad = new SelectOption(item.ciudad?.id);
     return user;
 
   }

@@ -6,26 +6,19 @@ import { environment } from '../../../../environments/environment';
 
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
-import { Bill } from '../../models/Lotery/bill';
+import { Tasa } from '../../models/Lotery/tasa';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BillService extends HttpService {
-  private sharingObservable: BehaviorSubject<Bill> =
-    new BehaviorSubject<Bill>(this.getEmptyConfig());
+export class TasaService extends HttpService {
+  private sharingObservable: BehaviorSubject<Tasa> =
+    new BehaviorSubject<Tasa>(this.getEmptyConfig());
 
-  getEmptyConfig(): Bill {
+  getEmptyConfig(): Tasa {
     return {
       id: 0,
-      numero: '',
-      fecha: new Date(),
-      hora: 0,
-      local: 0,
-      cliente: 0,
       monto: 0,
-      montoMin: 0,
-      tasa: 0
     };
 
   }
@@ -41,7 +34,7 @@ export class BillService extends HttpService {
     return this.sharingObservable.asObservable();
   }
 
-  set sharingData (data: Bill){
+  set sharingData (data: Tasa){
     this.sharingObservable.next(data);
   }
 
@@ -50,7 +43,7 @@ export class BillService extends HttpService {
   }
 
   getAll() {
-      return this.get(environment.apiUrl, '/facturas');
+      return this.get(environment.apiUrl, '/tasas');
   }
 
   /**
@@ -59,9 +52,9 @@ export class BillService extends HttpService {
    */
   async add(data: any) {
     try {
-      await firstValueFrom(this.post(environment.apiUrl, '/factura', data));
-      this.toastrService.success('Factura registrada con éxito.');
-      this.router.navigate(['/facturas']);
+      await firstValueFrom(this.post(environment.apiUrl, '/tasa', data));
+      this.toastrService.success('Tasa registrada con éxito.');
+      this.router.navigate(['/tasas']);
     } catch (error: any) {        
       if (error.status == 409) {
         this.toastrService.error('', error.error.msg);
@@ -74,10 +67,10 @@ export class BillService extends HttpService {
 
   async update(id: number, data: any) {
     try {
-      await firstValueFrom(this.put(environment.apiUrl, `/factura/${id}`, data));
+      await firstValueFrom(this.put(environment.apiUrl, `/tasa/${id}`, data));
       this.resetData(); //// Resetear los valores del observable después de actualizar
-      this.toastrService.success('Factura actualizada con éxito.');
-      this.router.navigate(['/facturas']);
+      this.toastrService.success('Tasa actualizado con éxito.');
+      this.router.navigate(['/tasas']);
     } catch (error: any) {
       if (error.status == 409) {
         this.toastrService.error('', error.msg);

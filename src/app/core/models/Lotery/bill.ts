@@ -1,8 +1,12 @@
 
 export class Bill { 
     id?: number;
-    local: number;
-    monto: number;
     numero: string;
     fecha: Date;
+    hora: number;
+    monto: number;
+    montoMin: number;
+    tasa: number;
+    local: number;
+    cliente: number;
 }

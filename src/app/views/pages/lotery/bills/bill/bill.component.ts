@@ -15,9 +15,14 @@ export class BillComponent implements OnInit {
 
   loading = true;
   selectedRow;
-  displayedColumns: string[] = ['cliente', 'local', 'monto', 'fecha', 'actions'];
+  displayedColumns: string[] = ['cliente', 'local', 'numero', 'fecha', 'monto', 'cupones' , 'actions'];
   dataSource: MatTableDataSource<Bill>;
   totalDepreciacionMensual: number = 0;
+
+  bills: any[] = [
+    {cliente: 'Sir Sarmiento', local: 'Farmatodo', numero: '09081290', monto: 1500.20, montoMin: 1200.20, fecha: '2025-09-28', print: 0},
+    {cliente: 'Ernesto Perez', local: 'Locatel', numero: '09081211', monto: 2700.10,  montoMin: 1200.20, fecha: '2025-09-27', print: 1},
+  ];
 
     
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -30,12 +35,13 @@ export class BillComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.getBills();
+    this.initTable(this.bills);
+    //this.getBills();
   }
 
   getBills(){
-    this.billService.getAll().subscribe((data: any) => {
-      this.initTable(data);
+    this.billService.getAll().subscribe((resp: any) => {
+      this.initTable(resp.data);
     });
   }
 
@@ -47,7 +53,6 @@ export class BillComponent implements OnInit {
     }
 
     this.loading = false;
-    this.paginator._intl.itemsPerPageLabel = 'Filas';
   }
 
 
@@ -66,6 +71,14 @@ export class BillComponent implements OnInit {
 
   openAdd(){
     this.router.navigate(['/bills/add-bill']);
+  }
+
+  onPrint(row: Bill){
+    console.log('Imprimir', row);
+  }
+
+  getCupones(row: Bill){
+    return row.monto / row.montoMin;
   }
 
 }

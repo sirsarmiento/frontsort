@@ -1,0 +1,70 @@
+<div class="main-content">
+  <nav class="page-breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Local</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Crear</li>
+    </ol>
+  </nav>
+ 
+  <div class="card">
+    <div class="card-body">        
+      <form [formGroup]="form"> 
+        <div class="row">
+          <div class="col-6">
+            <mat-form-field>
+                <mat-label>Nombre</mat-label>
+                <input type="text"  matInput formControlName="nombre" maxlength="50" [ngClass]="{ 'is-invalid': submitted && f.nombre.errors }">
+                <mat-error *ngIf="submitted && f.nombre.errors">
+                  <mat-error *ngIf="f.nombre.errors.required">Ingrese el nombre</mat-error>
+                  <mat-error *ngIf="f.nombre.errors?.pattern">Nombre no valido</mat-error>
+                </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-6">
+              <mat-form-field>
+                  <mat-label>Monto Ref.</mat-label>
+                  <input matInput currencyMask formControlName="monto" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.monto.errors }" >
+                  <mat-error *ngIf="submitted && f.monto.errors">
+                    <mat-error *ngIf="f.monto.errors.required">Ingrese monto total</mat-error>
+                  </mat-error>
+              </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="btn-flex-end">
+              <div class="margin-button">
+                <button mat-raised-button class="button-add-color" (click)="back()">
+                  <div class="btn-content">
+                    <div class="button-txt">
+                      Regresar
+                    </div>
+                    <div class="icon">
+                      <mat-icon>undo</mat-icon>
+                    </div>
+                  </div>
+                </button>
+              </div>  
+        
+              <button  mat-raised-button [disabled]="loading" class="button-add-color" (click)="onSubmit()">
+                <div class="btn-content">
+                    <div class="button-txt">
+                      Guardar
+                    </div>
+                    <div class="icon">
+                      <mat-icon>save</mat-icon>
+                    </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+

@@ -28,8 +28,8 @@ export class AddUserComponent implements OnInit {
   maxDate = new Date();
 
   user:User;
-  states:Array<SelectOption>;
-  cities:Array<SelectOption>;
+  estados:Array<SelectOption>;
+  ciudades:Array<SelectOption>;
   positions: Array<SelectOption>;
   roles: Array<SelectOption>;
 
@@ -52,7 +52,7 @@ export class AddUserComponent implements OnInit {
     const objetoJSON = localStorage.getItem('cusr');
     if (objetoJSON) {
       const localStore = JSON.parse(objetoJSON);
-      this.states = await this.commonsService.getAllStates(localStore.user.country.value);
+      this.estados = await this.commonsService.getAllEstados(localStore.user.country.value);
     }
 
     this.positions = await this.commonsService.getAllPositions();
@@ -86,8 +86,8 @@ export class AddUserComponent implements OnInit {
         this.f.email.setValue(data.email);
         this.f.address.setValue(data.address);
         this.f.position.setValue(parseInt(data.position.value));
-        this.f.state.setValue(parseInt(data.state.value));
-        this.f.city.setValue(parseInt(data.city.value));
+        this.f.estado.setValue(parseInt(data.estado.value));
+        this.f.ciudad.setValue(parseInt(data.ciudad.value));
 
         this.setRolesSeleccionados(data.roles);
         this.id = data.id;
@@ -115,9 +115,9 @@ export class AddUserComponent implements OnInit {
     this.userSubscription.unsubscribe();
   }
 
-  async getCities(stateId:any){
-    this.cities = [];
-    this.cities = await this.commonsService.getAllCities(stateId);
+  async getCiudades(stateId:any){
+    this.ciudades = [];
+    this.ciudades = await this.commonsService.getAllCiudades(stateId);
   }
 
   setUserName(){
@@ -153,8 +153,8 @@ export class AddUserComponent implements OnInit {
       position: this.f.position.value,
       roles: this.f.roles.value,
       country: 1,
-      state: this.f.state.value,
-      city: this.f.city.value,
+      estado: this.f.estado.value,
+      ciudad: this.f.ciudad.value,
       idempresa: null,
     }
 
@@ -174,8 +174,8 @@ export class AddUserComponent implements OnInit {
       documentType: ['',Validators.required],
       documentNumber: ['',Validators.compose([Validators.required])],
       birthDate: ['',Validators.required],
-      state: ['',Validators.required],
-      city: ['',Validators.required],
+      estado: ['',Validators.required],
+      ciudad: ['',Validators.required],
       sex: ['',Validators.required],
       email: ['', Validators.compose([Validators.email,Validators.required])],
       address: ['',Validators.compose([Validators.minLength(10),Validators.maxLength(150),Validators.required])],

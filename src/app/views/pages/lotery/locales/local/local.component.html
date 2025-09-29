@@ -3,7 +3,7 @@
       <div class="col-4">
         <nav class="page-breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a routerLink=".">Facturas</a></li>
+            <li class="breadcrumb-item"><a routerLink=".">Locales</a></li>
             <li class="breadcrumb-item active" aria-current="page">Listado</li>
           </ol>
         </nav>
@@ -37,49 +37,23 @@
     <div class="mat-elevation-z8 ">
       <div class="table-responsive">
         <table mat-table [dataSource]="dataSource" matSort>
-
-          <ng-container matColumnDef="cliente">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</th>
-            <td mat-cell *matCellDef="let row"> {{row.cliente}} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="local">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Local</th>
-            <td mat-cell *matCellDef="let row"> {{ row.local }} </td>
-          </ng-container>
-
           
-          <ng-container matColumnDef="numero">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header># Factura</th>
-            <td mat-cell *matCellDef="let row"> {{ row.numero }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="fecha">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
-            <td mat-cell *matCellDef="let row"> {{ row.fecha | date: "dd-MM-yyyy"  }} </td>
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Local</th>
+            <td mat-cell *matCellDef="let row"> {{ row.nombre }} </td>
           </ng-container>
 
           <ng-container matColumnDef="monto">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Monto</th>
             <td mat-cell *matCellDef="let row"> {{ row.monto | number: '1.2-2' }} </td>
           </ng-container>
-
-          <ng-container matColumnDef="cupones">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cupones</th>
-            <td mat-cell *matCellDef="let row"> {{ getCupones(row)  | number: '1.0-0' }}  </td>
-          </ng-container>
-        
         
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef> Acciones </th>
             <td mat-cell *matCellDef="let row">
               <button mat-icon-button class="edit-color" matTooltip="Editar"     
               (click)="onEdit(row)">
-                  <mat-icon class="font-weight-boldest">Ver más</mat-icon>
-              </button>
-              <button mat-icon-button class="edit-color" matTooltip="Imprimir" *ngIf="row.print == 0" 
-              (click)="onPrint(row)">
-                  <mat-icon class="font-weight-boldest">Imprimir</mat-icon>
+                  <mat-icon class="font-weight-boldest">create</mat-icon>
               </button>
             </td>
           </ng-container>

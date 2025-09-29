@@ -93,26 +93,26 @@
             <div class="col-6">
               <mat-form-field>
                   <mat-label>Estado</mat-label>
-                  <mat-select  formControlName="state" (ngModelChange)="getCities($event)">
-                      <mat-option *ngFor="let s of states" [value]="s.id">
+                  <mat-select  formControlName="estado" (ngModelChange)="getCiudades($event)">
+                      <mat-option *ngFor="let s of estados" [value]="s.id">
                         {{s.name}}
                       </mat-option>
                   </mat-select>
-                  <mat-error *ngIf="submitted && f.state.errors">
-                    <mat-error *ngIf="f.state.errors.required">Seleccione un estado</mat-error>
+                  <mat-error *ngIf="submitted && f.estado.errors">
+                    <mat-error *ngIf="f.estado.errors.required">Seleccione un estado</mat-error>
                   </mat-error>
               </mat-form-field>
             </div> 
             <div class="col-6">
               <mat-form-field>
                   <mat-label>Ciudad</mat-label>
-                  <mat-select  formControlName="city">
-                      <mat-option *ngFor="let c of cities" [value]="c.id">
+                  <mat-select  formControlName="ciudad">
+                      <mat-option *ngFor="let c of ciudades" [value]="c.id">
                         {{c.name}}
                       </mat-option>
                   </mat-select>
-                  <mat-error *ngIf="submitted && f.city.errors">
-                    <mat-error *ngIf="f.city.errors.required">Seleccione una ciudad</mat-error>
+                  <mat-error *ngIf="submitted && f.ciudad.errors">
+                    <mat-error *ngIf="f.ciudad.errors.required">Seleccione una ciudad</mat-error>
                   </mat-error>
               </mat-form-field>
             </div> 

@@ -1,7 +1,7 @@
 <div class="main-content">
   <nav class="page-breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a routerLink=".">Activo</a></li>
+      <li class="breadcrumb-item"><a routerLink=".">Factura</a></li>
       <li class="breadcrumb-item active" aria-current="page">Crear</li>
     </ol>
   </nav>
@@ -9,65 +9,235 @@
   <div class="card">
     <div class="card-body">        
       <form [formGroup]="form"> 
-        
-        <div class="row padding-top-input">
-          <div class="col-12">
-              <mat-form-field>
-                  <mat-label>Nombre de Activo</mat-label>
-                  <input matInput formControlName="nombre" maxlength="250" [ngClass]="{ 'is-invalid': submitted && f.nombre.errors }" >
-                  <mat-error *ngIf="submitted && f.nombre.errors">
-                      <mat-error *ngIf="f.nombre.errors.required">Ingrese el Nombre de Activo</mat-error>
-                  </mat-error>
-              </mat-form-field>
-          </div>
-        </div>
-
-      <div class="row">
-          <div class="col-12">
-              <mat-form-field>
-                  <mat-label>Costo Inicial</mat-label>
-                  <input currencyMask  matInput formControlName="costoInicial" [ngClass]="{ 'is-invalid': submitted && f.costoInicial.errors }" >
-                  <mat-error *ngIf="submitted && f.costoInicial.errors">
-                      <mat-error *ngIf="f.costoInicial.errors.required">Ingrese el costo Inicial</mat-error>
-                  </mat-error>
-              </mat-form-field>
-          </div>
-        </div>
-
         <div class="row">
           <div class="col-12">
-              <mat-form-field>
-                  <mat-label>Valor Residual</mat-label>
-                  <input currencyMask  matInput formControlName="valorResidual" [ngClass]="{ 'is-invalid': submitted && f.valorResidual.errors }" >
-                  <mat-error *ngIf="submitted && f.valorResidual.errors">
-                      <mat-error *ngIf="f.valorResidual.errors.required">Ingrese el Valor Residual</mat-error>
-                  </mat-error>
-              </mat-form-field>
+             <h3 class="card-title">Cliente</h3>
           </div>
         </div>
+         
 
-        <div class="row">
-          <div class="col-12">
+          <div class="row">
+            <div class="col-2">
               <mat-form-field>
-                  <mat-label>Vida Útil (Años)</mat-label>
-                  <input type="number" matInput formControlName="vidaUtil" maxlength="4" [ngClass]="{ 'is-invalid': submitted && f.vidaUtil.errors }" >
-                  <mat-error *ngIf="submitted && f.vidaUtil.errors">
-                      <mat-error *ngIf="f.vidaUtil.errors.required">Ingrese la Vida Útil (Años)</mat-error>
+                <mat-label>Tipo de Documento</mat-label>
+                <mat-select formControlName="tipoDocumentoIdentidad">
+                  <mat-option value="V">V</mat-option>
+                  <mat-option value="P">P</mat-option>
+                  <mat-option value="E">E</mat-option>
+                </mat-select>
+                <mat-error *ngIf="submitted && f.tipoDocumentoIdentidad.errors">
+                  <mat-error *ngIf="f.tipoDocumentoIdentidad.errors.required">Seleccione tipo de documento</mat-error>
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-4">
+              <mat-form-field>
+                  <mat-label># Documento</mat-label>
+                  <input type="text"  matInput formControlName="nroDocumentoIdentidad" maxlength="9" (focusout)="searchClient()" [ngClass]="{ 'is-invalid': submitted && f.nroDocumentoIdentidad.errors }" >
+                  <mat-error *ngIf="submitted && f.nroDocumentoIdentidad.errors">
+                      <mat-error *ngIf="f.nroDocumentoIdentidad.errors.required">Ingrese número de documento</mat-error>
+                      <mat-error *ngIf="f.nroDocumentoIdentidad.errors?.pattern">Número de documento no valido</mat-error>
                   </mat-error>
               </mat-form-field>
-          </div>
-        </div>
-        
-        <div class="row">
-          <div class="col-3">
+            </div>
+            <div class="col-6">
               <mat-form-field>
-                <mat-label>Fecha de Adquisición</mat-label>
-                <input formControlName="fechaCompra" matInput [matDatepicker]="fechaCompra" readonly>
-                <mat-datepicker-toggle matSuffix [for]="fechaCompra"></mat-datepicker-toggle>
-                <mat-datepicker #fechaCompra></mat-datepicker>
+                  <mat-label>Correo Electrónico</mat-label>
+                  <input type="text"  matInput formControlName="email" maxlength="50" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" (focusout)="setUserName()">
+                  <mat-error *ngIf="submitted && f.email.errors">
+                    <mat-error *ngIf="f.email.errors.required">Ingrese el correo electrónico</mat-error>
+                    <mat-error *ngIf="f.email.errors?.pattern">Email no valido</mat-error>
+                  </mat-error>
               </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-6">
+                <mat-form-field>
+                    <mat-label>Primer Nombre</mat-label>
+                    <input type="text" matInput formControlName="primerNombre" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.primerNombre.errors }" >
+                    <mat-error *ngIf="submitted && f.primerNombre.errors">
+                        <mat-error *ngIf="f.primerNombre.errors.required">Ingrese primer nombre</mat-error>
+                        <mat-error *ngIf="f.primerNombre.errors?.pattern">Primer nombre no valido</mat-error>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-6">
+                <mat-form-field>
+                    <mat-label>Segundo Nombre</mat-label>
+                    <input type="text"  matInput formControlName="segundoNombre" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.segundoNombre.errors }" >
+                    <mat-error *ngIf="submitted && f.segundoNombre.errors">
+                        <mat-error *ngIf="f.segundoNombre.errors.required">Ingrese segundo nombre</mat-error>
+                        <mat-error *ngIf="f.segundoNombre.errors?.pattern">Segundo nombre no valido</mat-error>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-6">
+                <mat-form-field>
+                    <mat-label>Primer Apellido</mat-label>
+                    <input type="text" matInput formControlName="primerApellido" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.primerApellido.errors }" (focusout)="setUserName()"> 
+                    <mat-error *ngIf="submitted && f.primerApellido.errors">
+                        <mat-error *ngIf="f.primerApellido.errors.required">Ingrese primer apellido</mat-error>
+                        <mat-error *ngIf="f.primerApellido.errors?.pattern">Primer apellido no valido</mat-error>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-6">
+                <mat-form-field>
+                    <mat-label>Segundo Apellido</mat-label>
+                    <input type="text"  matInput formControlName="segundoApellido" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.segundoApellido.errors }" >
+                    <mat-error *ngIf="submitted && f.segundoApellido.errors">
+                        <mat-error *ngIf="f.segundoApellido.errors.required">Ingrese segundo apellido</mat-error>
+                        <mat-error *ngIf="f.segundoApellido.errors?.pattern">Segundo apellido no valido</mat-error>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+          </div>
+          
+         <div class="row">
+            <div class="col-6">
+              <mat-form-field>
+                  <mat-label>Estado</mat-label>
+                  <mat-select  formControlName="estado" (ngModelChange)="getCiudades($event)">
+                      <mat-option *ngFor="let e of estados" [value]="e.id">
+                        {{e.name}}
+                      </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="submitted && f.estado.errors">
+                    <mat-error *ngIf="f.estado.errors.required">Seleccione un estado</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div> 
+            <div class="col-6">
+              <mat-form-field>
+                  <mat-label>Ciudad</mat-label>
+                  <mat-select  formControlName="ciudad">
+                      <mat-option *ngFor="let c of ciudades" [value]="c.id">
+                        {{c.name}}
+                      </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="submitted && f.ciudad.errors">
+                    <mat-error *ngIf="f.ciudad.errors.required">Seleccione una ciudad</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div> 
+          </div>
+
+          <div class="row">
+            <div class="col-6">
+              <mat-form-field>
+                  <mat-label>Dirección</mat-label>
+                  <input type="text"  matInput formControlName="direccion" maxlength="150" [ngClass]="{ 'is-invalid': submitted && f.direccion.errors }" >
+                  <mat-error *ngIf="submitted && f.direccion.errors">
+                      <mat-error *ngIf="f.direccion.errors.required">Ingrese dirección</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div>
+
+                        <div class="col-2">
+              <mat-form-field>
+                <mat-label>Código</mat-label>
+                  <mat-select formControlName="codTelefono">
+                    <mat-option value="0412">0412</mat-option>
+                    <mat-option value="0414">0414</mat-option>
+                    <mat-option value="0416">0416</mat-option>
+                    <mat-option value="0424">0424</mat-option>
+                    <mat-option value="0426">0426</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="submitted && f.codTelefono.errors">
+                    <mat-error *ngIf="f.codTelefono.errors.required">Seleccione tipo de documento</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-4">
+              <mat-form-field>
+                  <mat-label> Número de Teléfono</mat-label>
+                  <input type="number"  matInput formControlName="nroTelefono" maxlength="9" [ngClass]="{ 'is-invalid': submitted && f.nroTelefono.errors }" >
+                  <mat-error *ngIf="submitted && f.nroTelefono.errors">
+                      <mat-error *ngIf="f.nroTelefono.errors.required">Ingrese teléfono</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+      </form>
+    </div>  
+  </div>
+
+  <div class="card">
+    <div class="card-body">        
+      <form [formGroup]="form"> 
+        <div class="row">
+          <div class="col-4">
+            <h3 class="card-title">Factura</h3>
+          </div>
+          <div class="col-4 text-end">
+             <h6>Tasa BCV: {{ tasa | number: '1.2-2' }}</h6>
+          </div>
+          <div class="col-4 text-end">
+             <h6>Monto Mínimo Bs: {{ montoMin | number: '1.2-2' }}</h6>
           </div>
         </div>
+          <div class="row">
+            <div class="col-8">
+              <mat-form-field>
+                  <mat-label>Local Comercial</mat-label>
+                  <mat-select  formControlName="local" (selectionChange)="getMontoMin($event.value)">
+                      <mat-option *ngFor="let l of locales" [value]="l.id">
+                        {{ l.nombre }}
+                      </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="submitted && f.local.errors">
+                    <mat-error *ngIf="f.local.errors.required">Seleccione el local</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div> 
+
+            <div class="col-4">
+              <mat-form-field>
+                  <mat-label>Número de Factura</mat-label>
+                  <input type="text"  matInput formControlName="nroFactura" maxlength="10" [ngClass]="{ 'is-invalid': submitted && f.nroFactura.errors }" >
+                  <mat-error *ngIf="submitted && f.nroFactura.errors">
+                      <mat-error *ngIf="f.nroFactura.errors.required">Ingrese número de factura</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-4">
+                <mat-form-field>
+                  <mat-label>Fecha</mat-label>
+                    <input formControlName="fecha" matInput [matDatepicker]="fecha" readonly [min]="minFecha" [max]="maxFecha">
+                      <mat-datepicker-toggle matSuffix [for]="fecha"></mat-datepicker-toggle>
+                      <mat-datepicker #fecha></mat-datepicker>
+                    <mat-error *ngIf="submitted && f.fecha.errors">
+                        <mat-error *ngIf="f.fecha.errors.required">Ingrese fecha</mat-error>
+                    </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-4">
+                <mat-form-field>
+                  <mat-label>Hora</mat-label>
+                    <input type="text"  matInput formControlName="hora" maxlength="5" [ngClass]="{ 'is-invalid': submitted && f.hora.errors }" >
+                    <mat-error *ngIf="submitted && f.hora.errors">
+                    <mat-error *ngIf="f.hora.errors.required">Ingrese hora</mat-error>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            <div class="col-4">
+              <mat-form-field>
+                  <mat-label>Monto Total Bs.</mat-label>
+                  <input matInput currencyMask formControlName="monto" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.monto.errors }" >
+                  <mat-error *ngIf="submitted && f.monto.errors">
+                    <mat-error *ngIf="f.monto.errors.required">Ingrese monto total</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
 
         <div class="row">
           <div class="col-12">

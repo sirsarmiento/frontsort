@@ -29,8 +29,8 @@ export class userObservable {
     idestructura: number;
     position: SelectOption;
     country: SelectOption;
-    state: SelectOption;
-    city: SelectOption;
+    estado: SelectOption;
+    ciudad: SelectOption;
     roles?: any;
 }
 
@@ -62,8 +62,8 @@ export class User {
     sex: string;
     address: string;
     country: SelectOption;
-    state: SelectOption;
-    city: SelectOption;
+    estado: SelectOption;
+    ciudad: SelectOption;
     socialNetwork: Array<any>;
     answered:boolean;
     hoursDedication: string; 
@@ -116,8 +116,8 @@ export class User {
         newInstace.sex = user.sex;
         newInstace.address = user.address;
         newInstace.country = user.country;
-        newInstace.state = user.state;
-        newInstace.city = user.city;
+        newInstace.estado = user.estado;
+        newInstace.ciudad = user.ciudad;
         newInstace.socialNetwork = user.socialNetwork;
         newInstace.company = user.company;
 
@@ -152,8 +152,8 @@ export class User {
         Object.assign(userMap, { sexo: user.sex });
         Object.assign(userMap, { direccion: user.address ? user.address : null });
         Object.assign(userMap, { pais: user.country });
-        Object.assign(userMap, { estado: user.state });
-        Object.assign(userMap, { ciudad: user.city });
+        Object.assign(userMap, { estado: user.estado });
+        Object.assign(userMap, { ciudad: user.ciudad });
         Object.assign(userMap, { idempresa: null });
         Object.assign(userMap, { idestructura: user.idestructura });
         return userMap;
@@ -196,9 +196,9 @@ export class User {
         if (userObj.pais)
             userMap.country = new SelectOption(userObj.pais?.id);
         if (userObj.estado)
-            userMap.state = new SelectOption(userObj.estado?.id);
+            userMap.estado = new SelectOption(userObj.estado?.id);
         if (userObj.ciudad)
-            userMap.city = new SelectOption(userObj.ciudad?.id);
+            userMap.ciudad = new SelectOption(userObj.ciudad?.id);
         return userMap;
     }
 
@@ -211,8 +211,8 @@ export class User {
 
         Object.assign(userMap, { direccion: user.address ? user.address : null });
         Object.assign(userMap, { pais: parseInt(user.country.value) });
-        Object.assign(userMap, { estado: parseInt(user.state.value) });
-        Object.assign(userMap, { ciudad: parseInt(user.city.value) });
+        Object.assign(userMap, { estado: parseInt(user.estado.value) });
+        Object.assign(userMap, { ciudad: parseInt(user.ciudad.value) });
         Object.assign(userMap, { redes: this.getNetworkUser(user.socialNetwork) });
 
         return userMap;
