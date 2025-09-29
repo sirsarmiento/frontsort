@@ -63,7 +63,7 @@ export const MENU: MenuItem[] = [
     icon: 'briefcase',
     subItems: [
       {
-        label: 'Ver',
+        label: 'Procesar',
         link: '/bills/bill',
       }
     ]
