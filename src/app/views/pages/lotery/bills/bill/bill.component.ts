@@ -15,13 +15,13 @@ export class BillComponent implements OnInit {
 
   loading = true;
   selectedRow;
-  displayedColumns: string[] = ['cliente', 'local', 'numero', 'fecha', 'monto', 'cupones' , 'actions'];
+  displayedColumns: string[] = ['cedula','cliente', 'local', 'numero', 'fecha', 'monto', 'cupones' , 'actions'];
   dataSource: MatTableDataSource<Bill>;
   totalDepreciacionMensual: number = 0;
 
   bills: any[] = [
-    {cliente: 'Sir Sarmiento', local: 'Farmatodo', numero: '09081290', monto: 1500.20, montoMin: 1200.20, fecha: '2025-09-28', print: 0},
-    {cliente: 'Ernesto Perez', local: 'Locatel', numero: '09081211', monto: 2700.10,  montoMin: 1200.20, fecha: '2025-09-27', print: 1},
+    {cedula: '13.044.519', cliente: 'Sir Sarmiento', local: 'Farmatodo', numero: '09081290', monto: 1500.20, montoMin: 1200.20, fecha: '2025-09-28', print: 0},
+    {cedula: '13.033.501', cliente: 'Ernesto Perez', local: 'Locatel', numero: '09081211', monto: 2700.10,  montoMin: 1200.20, fecha: '2025-09-27', print: 1},
   ];
 
     
@@ -75,6 +75,10 @@ export class BillComponent implements OnInit {
 
   onPrint(row: Bill){
     console.log('Imprimir', row);
+  }
+
+  onEmail(row: Bill){
+    console.log('Email', row);
   }
 
   getCupones(row: Bill){

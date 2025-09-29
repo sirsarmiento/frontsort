@@ -38,6 +38,11 @@
       <div class="table-responsive">
         <table mat-table [dataSource]="dataSource" matSort>
 
+          <ng-container matColumnDef="cedula">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cédula</th>
+            <td mat-cell *matCellDef="let row"> {{row.cedula}} </td>
+          </ng-container>
+
           <ng-container matColumnDef="cliente">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</th>
             <td mat-cell *matCellDef="let row"> {{row.cliente}} </td>
@@ -75,11 +80,15 @@
             <td mat-cell *matCellDef="let row">
               <button mat-icon-button class="edit-color" matTooltip="Editar"     
               (click)="onEdit(row)">
-                  <mat-icon class="font-weight-boldest">Ver más</mat-icon>
+                  <mat-icon class="font-weight-boldest">create</mat-icon>
+              </button>
+              <button mat-icon-button class="edit-color" matTooltip="Enviar cupones" 
+              (click)="onEmail(row)">
+                  <mat-icon class="font-weight-boldest">email</mat-icon>
               </button>
               <button mat-icon-button class="edit-color" matTooltip="Imprimir" *ngIf="row.print == 0" 
               (click)="onPrint(row)">
-                  <mat-icon class="font-weight-boldest">Imprimir</mat-icon>
+                  <mat-icon class="font-weight-boldest">print</mat-icon>
               </button>
             </td>
           </ng-container>
