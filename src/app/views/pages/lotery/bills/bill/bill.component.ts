@@ -4,8 +4,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Bill } from 'src/app/core/models/Lotery/bill';
+import { Bill, ClientBill } from 'src/app/core/models/Lotery/bill';
 import { BillService } from 'src/app/core/services/Lotery/bill.service';
+import { ModalGenericComponent } from 'src/app/views/shared/components/modal-generic/modal-generic.component';
 
 @Component({
   selector: 'app-bill',
@@ -77,6 +78,16 @@ export class BillComponent implements OnInit {
 
   getCupones(row: Bill){
     return row.monto / row.montoMin;
+  }
+
+  onViewDocument(row: ClientBill){
+    this.matDialog.open(ModalGenericComponent, {
+      data: { urlPhoto:  row.fotoCedula },
+      width: '60%',
+      maxWidth: '60vw',
+      disableClose: true,
+      id: 'modal-params'
+    });
   }
 
 }

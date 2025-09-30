@@ -11,7 +11,7 @@ export const MENU: MenuItem[] = [
     link: '/dashboard'
   },
   {
-    label: 'Administación',
+    label: 'Administración',
     isTitle: true
   },
   {

@@ -79,16 +79,20 @@
             <th mat-header-cell *matHeaderCellDef> Acciones </th>
             <td mat-cell *matCellDef="let row">
               <button mat-icon-button class="edit-color" matTooltip="Editar"     
-              (click)="onEdit(row)">
+                (click)="onEdit(row)">
                   <mat-icon class="font-weight-boldest">create</mat-icon>
               </button>
               <button mat-icon-button class="edit-color" matTooltip="Enviar cupones" 
-              (click)="onEmail(row)">
+                (click)="onEmail(row)">
                   <mat-icon class="font-weight-boldest">email</mat-icon>
               </button>
               <button mat-icon-button class="edit-color" matTooltip="Imprimir" *ngIf="row.print == 0" 
-              (click)="onPrint(row)">
+                (click)="onPrint(row)">
                   <mat-icon class="font-weight-boldest">print</mat-icon>
+              </button>
+              <button mat-icon-button class="edit-color" matTooltip="Ver documento" 
+                (click)="onViewDocument(row.cliente)">
+                <mat-icon class="font-weight-boldest">portrait</mat-icon>
               </button>
             </td>
           </ng-container>

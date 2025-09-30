@@ -1,4 +1,5 @@
 
+
 export class Bill { 
     id?: number;
     numero: string;
@@ -8,6 +9,14 @@ export class Bill {
     montoMin: number;
     tasa: number;
     local: number;
-    cliente: number;
+    user: number;
     print: number;
+    cliente?: ClientBill;
+}
+
+export class ClientBill {
+    tipoDocumentoIdentidad: string;
+    nroDocumentoIdentidad: string;
+    nombreCompleto: string;
+    fotoCedula: string;
 }

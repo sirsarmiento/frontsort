@@ -287,6 +287,10 @@ export class UserService extends HttpService {
     const resp = await firstValueFrom(this.delete(environment.apiUrl, `/user/${id}`));
   }
 
+  add( formData: any ){
+      return this.http.post(`${ environment.apiUrl }/user`, formData );
+  }
+
   /**
    * Persists user data
    * @param data 
@@ -509,28 +513,23 @@ export class UserService extends HttpService {
   }
 
 
-  /**
+/**
  * Query user by ci
  * @param ci 
  * @returns 
  */
-  async getUserByCi(data: any) {
-    let events: Array<any> = new Array<any>();
+  async getUserByCi(ci: number) {
     try {
-      const ci = data;
-      const resp = await firstValueFrom(this.get(environment.apiUrl, `/user/info/${ci}`, data));
-      const expPersonalInformation = ExpPersonalInformation.mapFromObject(resp[0]);
-      return expPersonalInformation;
+      const resp = await firstValueFrom(this.get(environment.apiUrl, `/user/info/${ci}`));
+      return resp;
 
     } catch (error: any) {
       
-      console.log(error);
+
       if (error.status == 409) {
         this.toastrService.error('', error.msg);
       }
-      if (error.status != 500) {
-        this.toastrService.error('', 'Ha ocurrido un error. Intente más tarde.');
-      }
+
 
     }
 

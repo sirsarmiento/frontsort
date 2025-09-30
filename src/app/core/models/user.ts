@@ -156,6 +156,7 @@ export class User {
         Object.assign(userMap, { ciudad: user.ciudad });
         Object.assign(userMap, { idempresa: null });
         Object.assign(userMap, { idestructura: user.idestructura });
+        Object.assign(userMap, { telefono: this.getPhonesUser(user.phones) });
         return userMap;
     }
 
