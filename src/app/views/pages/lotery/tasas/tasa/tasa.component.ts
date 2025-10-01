@@ -15,7 +15,7 @@ export class TasaComponent implements OnInit {
 
   loading = true;
   selectedRow;
-  displayedColumns: string[] = ['monto'];
+  displayedColumns: string[] = ['monto','fecha'];
   dataSource: MatTableDataSource<Tasa>;
     
   @ViewChild(MatPaginator) paginator: MatPaginator;

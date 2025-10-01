@@ -1,18 +1,35 @@
-<div class="main-content">
-    <div class="row">
-      <div class="col-11 msg-no-found">
-          Documento de Identidad
-      </div>
-      <div class="col-1 align-right">
-          <button mat-icon-button class="delete-color" matTooltip="Cerrar"
-          (click)="closeModal()"> 
-              <mat-icon class="font-weight-boldest">close</mat-icon>
-          </button>
-      </div>
-    </div> 
-
-    <div class="row">
-      <div class="col-12 align-center">
-        <img [src]="data.urlPhoto" alt="Documento de identidad" class="img-modal">
-      </div>
+<div class="modal-container">
+  <div class="modal-header">
+    <div class="modal-title">
+      Documento de Identidad
+    </div>
+    <button class="close-button" mat-icon-button matTooltip="Cerrar" (click)="closeModal()">
+      <mat-icon class="close-icon">close</mat-icon>
+    </button>
   </div>
+
+  <div class="modal-content">
+    <div class="image-container">
+      <img [src]="urlPhoto" alt="Documento de identidad" class="modal-image">
+      <div class="image-overlay" *ngIf="!urlPhoto">
+        <mat-icon class="placeholder-icon">image</mat-icon>
+        <p>Imagen no disponible</p>
+      </div>
+    </div>
+    
+    <div class="image-actions" *ngIf="urlPhoto">
+      <button mat-stroked-button (click)="zoomIn()" class="action-button">
+        <mat-icon>zoom_in</mat-icon>
+        Acercar
+      </button>
+      <button mat-stroked-button (click)="zoomOut()" class="action-button">
+        <mat-icon>zoom_out</mat-icon>
+        Alejar
+      </button>
+      <button mat-stroked-button (click)="rotateImage()" class="action-button">
+        <mat-icon>rotate_right</mat-icon>
+        Rotar
+      </button>
+    </div>
+  </div>
+</div>

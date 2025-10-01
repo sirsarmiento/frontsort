@@ -77,14 +77,13 @@ export class BillComponent implements OnInit {
   }
 
   getCupones(row: Bill){
-    return row.monto / row.montoMin;
+    return Math.trunc(row.monto / row.montoMin);
   }
 
   onViewDocument(row: ClientBill){
     this.matDialog.open(ModalGenericComponent, {
       data: { urlPhoto:  row.fotoCedula },
-      width: '60%',
-      maxWidth: '60vw',
+      width: '38%',
       disableClose: true,
       id: 'modal-params'
     });

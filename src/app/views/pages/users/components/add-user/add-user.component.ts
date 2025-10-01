@@ -73,7 +73,6 @@ export class AddUserComponent implements OnInit {
   setValue(){
     this.userSubscription = this.data$.subscribe( data => {
       if(data != null && data.id > 0){
-        console.log(data);
 
         this.f.firstName.setValue(data.firstName);
         this.f.secondName.setValue(data.secondName);
@@ -88,6 +87,15 @@ export class AddUserComponent implements OnInit {
         this.f.position.setValue(parseInt(data.position.value));
         this.f.estado.setValue(parseInt(data.estado.value));
         this.f.ciudad.setValue(parseInt(data.ciudad.value));
+
+        // Dividir el número de teléfono
+        const numeroCompleto = data['phones'][0].numero; // "04142781730"
+
+        // Primeros 4 dígitos para código
+        this.f.codTelefono.setValue(numeroCompleto.substring(0, 4));
+        
+        // Resto del número (desde la posición 4 hasta el final)
+        this.f.nroTelefono.setValue(numeroCompleto.substring(4));
 
         this.setRolesSeleccionados(data.roles);
         this.id = data.id;
@@ -156,6 +164,11 @@ export class AddUserComponent implements OnInit {
       estado: this.f.estado.value,
       ciudad: this.f.ciudad.value,
       idempresa: null,
+      phones: [
+        { 
+          numero: this.f.codTelefono.value + this.f.nroTelefono.value 
+        },
+      ],
     }
 
     console.log(user);
@@ -185,6 +198,8 @@ export class AddUserComponent implements OnInit {
       ]),
       roles: this.formBuilder.array([]),
       username: [''],
+      codTelefono: ['',Validators.required],
+      nroTelefono: ['',Validators.required],
     })
   }
 

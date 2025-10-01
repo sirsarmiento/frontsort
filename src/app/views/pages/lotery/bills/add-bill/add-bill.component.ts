@@ -119,12 +119,11 @@ async searchClient() {
   }
 }
 
-  getMontoMin(id: number){
-    this.locales.forEach( l => {
-      if(l.id == id){
-        this.montoMin = l.monto * this.tasa;
-      }
-    })
+  getMontoMin(id: number) {
+    const local = this.locales.find(l => l.id === id);
+    if (local) {
+      this.montoMin = local.monto * this.tasa;
+    }
   }
 
   setValues(){
@@ -162,23 +161,23 @@ async searchClient() {
 
   myFormValues() {
     this.form = this.formBuilder.group({
-      tipoDocumentoIdentidad: ['V',Validators.required],
-      nroDocumentoIdentidad: ['12345000',Validators.required],
-      email: ['test@gmail.com',Validators.required],
-      primerNombre: ['Carlos',Validators.required],
-      segundoNombre: ['Luis',Validators.required],
-      primerApellido: ['Gomez',Validators.required],
-      segundoApellido: ['Perez',Validators.required],
+      tipoDocumentoIdentidad: ['',Validators.required],
+      nroDocumentoIdentidad: ['',Validators.required],
+      email: ['',Validators.required],
+      primerNombre: ['',Validators.required],
+      segundoNombre: ['',Validators.required],
+      primerApellido: ['',Validators.required],
+      segundoApellido: [''],
       estado: ['',Validators.required],
       ciudad: ['',Validators.required],
-      direccion: ['CC El Recreo',Validators.required],
-      codTelefono: ['0414',Validators.required],
-      nroTelefono: ['2781735',Validators.required],
-      nroFactura: ['34324234',Validators.required],
+      direccion: ['',Validators.required],
+      codTelefono: ['',Validators.required],
+      nroTelefono: ['',Validators.required],
+      nroFactura: ['',Validators.required],
       fecha: ['',Validators.required],
-      hora: ['09:14',Validators.required],
+      hora: ['',Validators.required],
       local: ['',Validators.required],
-      monto: ['90000',Validators.required],
+      monto: ['',Validators.required],
     })
   }
 
@@ -254,7 +253,7 @@ async searchClient() {
           
         }),
         error: (error) => {
-          this.submitted = false;
+          this.loading = false;
           this.toastrService.error('Error al registrar cliente:', error.error.msg);
         },
         complete: () => this.billService.add(factura)

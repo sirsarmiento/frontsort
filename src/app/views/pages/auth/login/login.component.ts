@@ -17,6 +17,7 @@ export class LoginComponent extends BaseComponent  implements OnInit {
   email:string;
   password:string;
   returnUrl: any;
+  showPassword: boolean = false;
 
   constructor(
     private router: Router, 
@@ -41,6 +42,18 @@ export class LoginComponent extends BaseComponent  implements OnInit {
         this.setInputError(resp);
       }
       
+    }
+  }
+
+  /**
+   * Alterna la visibilidad de la contraseña
+   */
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+    
+    const passwordInput = document.getElementById('passwordInput') as HTMLInputElement;
+    if (passwordInput) {
+      passwordInput.type = this.showPassword ? 'text' : 'password';
     }
   }
 
