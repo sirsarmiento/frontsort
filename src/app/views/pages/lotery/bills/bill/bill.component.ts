@@ -4,9 +4,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Bill, ClientBill } from 'src/app/core/models/Lotery/bill';
+import { Bill, BillQr, ClientBill } from 'src/app/core/models/Lotery/bill';
 import { BillService } from 'src/app/core/services/Lotery/bill.service';
 import { ModalGenericComponent } from 'src/app/views/shared/components/modal-generic/modal-generic.component';
+import { ModalCuponComponent } from 'src/app/views/shared/components/modal-cupon/modal-cupon.component';
 
 @Component({
   selector: 'app-bill',
@@ -35,7 +36,6 @@ export class BillComponent implements OnInit {
 
   getBills(){
     this.billService.getAll().subscribe((resp: any) => {
-      console.log(resp.data);
       this.initTable(resp.data);
     });
   }
@@ -68,15 +68,16 @@ export class BillComponent implements OnInit {
     this.router.navigate(['/bills/add-bill']);
   }
 
-  onPrint(row: Bill){
-    console.log('Imprimir', row);
+  onCupon(row: BillQr){
+    this.matDialog.open(ModalCuponComponent, {
+      data: { bill:  row },
+      width: '38%',
+      disableClose: true,
+      id: 'modal-params'
+    });
   }
 
-  onEmail(row: Bill){
-    console.log('Email', row);
-  }
-
-  getCupones(row: Bill){
+  getCupones(row: BillQr){
     return Math.trunc(row.monto / row.montoMin);
   }
 

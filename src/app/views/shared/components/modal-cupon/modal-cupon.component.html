@@ -1,0 +1,42 @@
+<div class="main-content">
+    <div class="row">
+        <div class="col-12 align-right">
+            <button mat-icon-button matTooltip="PDF"   class="edit-color" 
+            (click)="onPrint()"> 
+            <mat-icon class="font-weight-boldest">print</mat-icon>
+            </button>
+            <button mat-icon-button class="delete-color" matTooltip="Cerrar"
+            (click)="closeModal()"> 
+                <mat-icon class="font-weight-boldest">close</mat-icon>
+            </button>
+        </div>
+    </div> 
+
+    <div class="cupones-scroll-container">
+        <div class="cupones-container">
+            <div class="cupon" *ngFor="let cupon of cuponesArray; let i = index">
+                <div class="cupon-header">
+                    <p class="cupon-id">ID: {{ local.id }}{{ numero }}{{ i + 1 }}</p>
+                </div>
+                    
+                <div class="cupon-body">
+                    <div class="qr-container">
+                        <qrcode 
+                        [qrdata]="generarQRData(i)"
+                        [width]="150"
+                        [errorCorrectionLevel]="'M'"
+                        [elementType]="'img'">
+                        </qrcode>
+                    </div>
+                    
+                    <!-- Información del documento centrada -->
+                    <div class="documento-info">
+                        <p class="documento-text">
+                            {{ cliente.tipoDocumentoIdentidad }}-{{ cliente.nroDocumentoIdentidad }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

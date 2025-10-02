@@ -82,13 +82,9 @@
                 (click)="onEdit(row)">
                   <mat-icon class="font-weight-boldest">create</mat-icon>
               </button>
-              <button mat-icon-button class="edit-color" matTooltip="Enviar cupones" 
-                (click)="onEmail(row)">
-                  <mat-icon class="font-weight-boldest">email</mat-icon>
-              </button>
-              <button mat-icon-button class="edit-color" matTooltip="Imprimir" *ngIf="row.print == 0" 
-                (click)="onPrint(row)">
-                  <mat-icon class="font-weight-boldest">print</mat-icon>
+              <button mat-icon-button class="edit-color" matTooltip="Cupones"  
+                (click)="onCupon(row)">
+                  <mat-icon class="font-weight-boldest">confirmation_number</mat-icon>
               </button>
               <button mat-icon-button class="edit-color" matTooltip="Ver documento" 
                 (click)="onViewDocument(row.cliente)">

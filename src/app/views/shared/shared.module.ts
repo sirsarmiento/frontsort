@@ -27,11 +27,14 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSliderModule } from '@angular/material/slider';
-import { ModalResponsibleComponent } from './components/modal-responsible/modal-responsible.component';
+
 import { ModalGenericComponent } from './components/modal-generic/modal-generic.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { CurrencyMaskConfig, CurrencyMaskModule, CURRENCY_MASK_CONFIG } from 'ng2-currency-mask';
+import { ModalCuponComponent } from './components/modal-cupon/modal-cupon.component';
+
+import { QRCodeModule } from 'angularx-qrcode';
 
 export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
   align: "left",
@@ -44,7 +47,7 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
 };
 
 @NgModule({
-  declarations: [BaseComponent, ModalResponsibleComponent, ModalGenericComponent],
+  declarations: [BaseComponent, ModalCuponComponent, ModalGenericComponent],
   imports: [
     CommonModule,
     RouterModule,
@@ -74,13 +77,14 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     MatTabsModule,
     MatSliderModule,
     ColorPickerModule,
-      CurrencyMaskModule,
+    CurrencyMaskModule,
+    QRCodeModule
   ],
   exports:[
     FormsModule,
     ReactiveFormsModule,
     BaseComponent,
-    ModalResponsibleComponent,
+    ModalCuponComponent,
     ModalGenericComponent,
     NgxDatatableModule,
     DataTablesModule,
@@ -107,6 +111,7 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     MatSliderModule,
     ColorPickerModule,
     CurrencyMaskModule,
+    QRCodeModule
   ],
   providers: [
     { provide: CURRENCY_MASK_CONFIG, useValue: CustomCurrencyMaskConfig }

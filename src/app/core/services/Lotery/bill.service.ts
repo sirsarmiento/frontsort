@@ -20,7 +20,7 @@ export class BillService extends HttpService {
       id: 0,
       numero: '',
       fecha: new Date(),
-      hora: 0,
+      hora: '',
       local: 0,
       user: 0,
       monto: 0,

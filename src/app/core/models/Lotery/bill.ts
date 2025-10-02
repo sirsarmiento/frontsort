@@ -4,7 +4,7 @@ export class Bill {
     id?: number;
     numero: string;
     fecha: Date;
-    hora: number;
+    hora: string;
     monto: number;
     montoMin: number;
     tasa: number;
@@ -12,6 +12,7 @@ export class Bill {
     user: number;
     print: number;
     cliente?: ClientBill;
+    localBill?: LocalBill;
 }
 
 export class ClientBill {
@@ -19,4 +20,23 @@ export class ClientBill {
     nroDocumentoIdentidad: string;
     nombreCompleto: string;
     fotoCedula: string;
+}
+
+export class LocalBill {
+    id: number;
+    nombre: string;
+}
+
+export class BillQr { 
+    id?: number;
+    numero: string;
+    fecha: Date;
+    hora: string;
+    monto: number;
+    montoMin: number;
+    tasa: number;
+    user: number;
+    print: number;
+    cliente?: ClientBill;
+    local?: LocalBill;
 }
