@@ -2,7 +2,8 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { BillQr, ClientBill, LocalBill } from 'src/app/core/models/Lotery/bill';
-
+import { BillService } from 'src/app/core/services/Lotery/bill.service';
+import Swal from 'sweetalert2';
 export interface DialogData { bill: BillQr }
 
 
@@ -17,6 +18,7 @@ export class ModalCuponComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
 
   constructor(
+     private billService: BillService,
      public dialogRef: MatDialogRef<ModalCuponComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {}
@@ -38,7 +40,6 @@ export class ModalCuponComponent implements OnInit {
   cuponesArray: number[] = [];
 
   ngOnInit() {
-    console.log(this.data.bill);
     this.initializeData();
   }
 
@@ -71,6 +72,9 @@ export class ModalCuponComponent implements OnInit {
     // Crear ID único para cada cupón: local.id + numero + índice
     const cuponId = `${this.local.id}${this.numero}${index + 1}`;
     
+    // agregar url de abajo al qr
+    //https://platformsorteosstage.pafar.com.ve/ganador?clienteId=123&localId=456&billNumber=789
+
     // Datos para el QR (puedes modificar según lo que necesites codificar)
     const qrData = {
       cuponId: cuponId,
@@ -91,7 +95,21 @@ export class ModalCuponComponent implements OnInit {
   }
 
   onPrint() {
-    window.print();
+    Swal.fire({
+      title:  `¿ Estás seguro que deseas imprimir?`,
+      showDenyButton: true,
+      confirmButtonText: `Imprimir`,
+    }).then((result) => {
+      if (result.isConfirmed){
+        console.log('paso');
+        this.billService.editPrint(this.id, 1).subscribe();
+      }
+    })
+  }
+
+  onEmail() {
+    // Lógica para enviar el cupón por email
+    console.log('Enviar cupón por email');
   }
 
   closeModal() {

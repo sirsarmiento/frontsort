@@ -88,4 +88,10 @@ export class BillService extends HttpService {
       }
     }
   }
+
+
+  editPrint( id: number, printNumber: number){
+      const formData = { print: printNumber };
+      return this.http.put(`${ environment.apiUrl }/factura/${id}/print`, formData );
+  }
 }
