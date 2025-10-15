@@ -26,7 +26,8 @@ export class BillService extends HttpService {
       monto: 0,
       montoMin: 0,
       tasa: 0,
-      print: 0
+      print: 0,
+      tickets: 0
     };
 
   }
@@ -38,7 +39,7 @@ export class BillService extends HttpService {
     super(http);
   }
 
-  get sharingProject(){
+  get sharing(){
     return this.sharingObservable.asObservable();
   }
 
@@ -54,24 +55,31 @@ export class BillService extends HttpService {
       return this.get(environment.apiUrl, '/facturas');
   }
 
+  getTotalTickets() {
+      return this.get(environment.apiUrl, '/facturas/tickets/total');
+  }
+
   /**
    * Persists Project data
    * @param data 
    */
-  async add(data: any) {
-    try {
-      await firstValueFrom(this.post(environment.apiUrl, '/factura', data));
-      this.toastrService.success('Factura registrada con éxito.');
-      this.router.navigate(['/bills']);
-    } catch (error: any) {        
-      if (error.status == 409) {
-        this.toastrService.error('', error.error.msg);
-      }
-      if (error.status != 500 && error.status != 409) {
-        this.toastrService.error('', 'Ha ocurrido un error. Intente más tarde.');
-      }
-    }
+  add( formData: any ){
+      return this.http.post(`${ environment.apiUrl }/factura`, formData );
   }
+  // async add(data: any) {
+  //   try {
+  //     await firstValueFrom(this.post(environment.apiUrl, '/factura', data));
+  //     this.toastrService.success('Factura registrada con éxito.');
+  //     this.router.navigate(['/bills']);
+  //   } catch (error: any) {        
+  //     if (error.status == 409) {
+  //       this.toastrService.error('', error.error.msg);
+  //     }
+  //     if (error.status != 500 && error.status != 409) {
+  //       this.toastrService.error('', 'Ha ocurrido un error. Intente más tarde.');
+  //     }
+  //   }
+  // }
 
   async update(id: number, data: any) {
     try {

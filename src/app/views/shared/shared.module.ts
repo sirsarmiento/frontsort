@@ -78,7 +78,8 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     MatSliderModule,
     ColorPickerModule,
     CurrencyMaskModule,
-    QRCodeModule
+    QRCodeModule,
+    MatNativeDateModule, // <-- Este es importante para el timepicker
   ],
   exports:[
     FormsModule,
@@ -111,7 +112,8 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     MatSliderModule,
     ColorPickerModule,
     CurrencyMaskModule,
-    QRCodeModule
+    QRCodeModule,
+    MatNativeDateModule, // <-- Este es importante para el timepicker
   ],
   providers: [
     { provide: CURRENCY_MASK_CONFIG, useValue: CustomCurrencyMaskConfig }

@@ -101,7 +101,6 @@ export class ModalCuponComponent implements OnInit {
       confirmButtonText: `Imprimir`,
     }).then((result) => {
       if (result.isConfirmed){
-        console.log('paso');
         this.billService.editPrint(this.id, 1).subscribe();
       }
     })

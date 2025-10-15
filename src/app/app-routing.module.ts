@@ -12,8 +12,8 @@ const routes: Routes = [
     component: ErrorPageComponent,
     data: {
       'type': 404,
-      'title': 'Page Not Found',
-      'desc': 'Oopps!! The page you were looking for doesn\'t exist.'
+      'title': '.',
+      'desc': 'Comuniquese con el administrador'
     }
   },
   {

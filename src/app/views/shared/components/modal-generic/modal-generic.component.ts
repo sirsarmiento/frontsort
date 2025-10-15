@@ -18,8 +18,7 @@ export class ModalGenericComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log(this.data.urlPhoto);
-    this.urlPhoto = "https://bofficesorteosstage.pafar.com.ve/public/fotos/3/CedulaSir-1-68dc796b1a1cf.jpeg";
+    this.urlPhoto = this.data.urlPhoto;
   }
 
   closeModal() {

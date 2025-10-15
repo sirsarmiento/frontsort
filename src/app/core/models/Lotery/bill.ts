@@ -11,6 +11,7 @@ export class Bill {
     local: number;
     user: number;
     print: number;
+    tickets: number;
     cliente?: ClientBill;
     localBill?: LocalBill;
 }

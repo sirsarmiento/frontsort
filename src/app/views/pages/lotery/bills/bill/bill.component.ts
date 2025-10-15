@@ -61,6 +61,7 @@ export class BillComponent implements OnInit {
 
   onEdit(row: Bill){
     this.router.navigate(['/bills/add-bill']);
+
     this.billService.sharingData = row;
   }
 
@@ -75,10 +76,6 @@ export class BillComponent implements OnInit {
       disableClose: true,
       id: 'modal-params'
     });
-  }
-
-  getCupones(row: BillQr){
-    return Math.trunc(row.monto / row.montoMin);
   }
 
   onViewDocument(row: ClientBill){

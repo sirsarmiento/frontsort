@@ -51,7 +51,7 @@ export class ErrorPageComponent implements OnInit, OnDestroy {
         break;
       default:
         // if (!this.type) {
-          this.type = 'Ooops..';
+          this.type = 'Acceso Denegado';
         // }
         if (!this.title) {
           this.title = 'Something went wrong';

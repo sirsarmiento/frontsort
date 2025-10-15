@@ -33,10 +33,9 @@
     background: #a8a8a8;
 }
 
-/* CAMBIO PRINCIPAL: Grid fijo de 2 columnas */
 .cupones-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Siempre 2 columnas */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     padding-bottom: 10px;
 }
@@ -116,27 +115,15 @@
     letter-spacing: 0.5px;
 }
 
-/* Responsive - Ajustes para pantallas más pequeñas */
-@media (max-width: 1024px) {
-    .cupones-container {
-        gap: 15px;
-    }
-    
-    .cupon {
-        padding: 15px;
-        min-height: 250px;
-    }
-}
-
+/* Responsive */
 @media (max-width: 768px) {
     .main-content {
         padding: 15px;
         height: 90vh;
     }
     
-    /* En tablets pequeñas y móviles, cambiar a 1 columna */
     .cupones-container {
-        grid-template-columns: 1fr; /* 1 columna en móviles */
+        grid-template-columns: 1fr;
         gap: 15px;
     }
     
@@ -220,4 +207,4 @@
 
 .cupon-id {
     margin: 0;
-}
+} 

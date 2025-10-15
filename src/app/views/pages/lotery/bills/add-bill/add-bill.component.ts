@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { Bill } from 'src/app/core/models/Lotery/bill';
@@ -20,7 +20,7 @@ import Swal from 'sweetalert2';
 })
 export class AddBillComponent implements OnInit {
   private userSubscription: Subscription;
-  private data$: Observable<userObservable>;
+  private data$: Observable<Bill>;
   form: FormGroup;
   id: number;
   tasa: number = 0;
@@ -50,7 +50,7 @@ export class AddBillComponent implements OnInit {
     private localService: LocalService,
   ) {
       this.myFormValues();
-      this.data$ = clientService.userObservable;
+      this.data$ = billService.sharing;
    }
 
   get f() { return this.form.controls; }
@@ -66,12 +66,10 @@ export class AddBillComponent implements OnInit {
     }
   }
 
-  
 
   getLastTasa(){
     this.tasaService.getAll().subscribe((resp: any) => {
        this.tasa = Number(resp.data[0].monto);
-       console.log(resp.data[0].monto);
     });
   }
 
@@ -88,7 +86,7 @@ export class AddBillComponent implements OnInit {
   }
 
 async searchClient() {
-  try {
+  if(this.f.nroDocumentoIdentidad.value != ''){
     const resp = await this.clientService.getUserByCi(this.f.nroDocumentoIdentidad.value);
     console.log(resp);
 
@@ -114,8 +112,6 @@ async searchClient() {
       // Resto del número (desde la posición 4 hasta el final)
       this.f.nroTelefono.setValue(numeroCompleto.substring(4));
     }
-  } catch (error) {
-    console.error('Error al cargar datos del usuario:', error);
   }
 }
 
@@ -128,22 +124,19 @@ async searchClient() {
 
   setValues(){
     this.userSubscription = this.data$.subscribe( data => {
-      if(data != null && data.id > 0){
-        console.log(data);
 
-        this.f.firstName.setValue(data.firstName);
-        this.f.secondName.setValue(data.secondName);
-        this.f.lastName.setValue(data.lastName);
-        this.f.secondLastName.setValue(data.secondLastName);
-        this.f.documentType.setValue(data.documentType);
-        this.f.documentNumber.setValue(data.documentNumber);
-        this.f.birthDate.setValue(data.birthDate); // La fecha viene null
-        this.f.sex.setValue(data.sex);
-        this.f.email.setValue(data.email);
-        this.f.address.setValue(data.address);
-        this.f.position.setValue(parseInt(data.position.value));
-        this.f.estado.setValue(parseInt(data.estado.value));
-        this.f.ciudad.setValue(parseInt(data.ciudad.value));
+      if(data != null && data.id > 0){
+
+        this.f.nroFactura.setValue(data.numero);
+        this.f.fecha.setValue(data.fecha);
+        this.f.hora.setValue(data.hora);
+        this.f.monto.setValue(data.monto);
+        this.montoMin = data.montoMin;
+        this.f.local.setValue(data.local['id']);
+
+        this.f.nroDocumentoIdentidad.setValue(data.cliente['nroDocumentoIdentidad']);
+
+        this.searchClient();
 
         this.id = data.id;
       }
@@ -165,7 +158,7 @@ async searchClient() {
       nroDocumentoIdentidad: ['',Validators.required],
       email: ['',Validators.required],
       primerNombre: ['',Validators.required],
-      segundoNombre: ['',Validators.required],
+      segundoNombre: [''],
       primerApellido: ['',Validators.required],
       segundoApellido: [''],
       estado: ['',Validators.required],
@@ -178,6 +171,8 @@ async searchClient() {
       hora: ['',Validators.required],
       local: ['',Validators.required],
       monto: ['',Validators.required],
+    }, { 
+      validators: this.validarFechaHora.bind(this) 
     })
   }
 
@@ -234,36 +229,133 @@ async searchClient() {
       tasa: this.tasa,
       local: this.f.local.value,
       user: this.cliente,
-      print: 0 
+      print: 0,
+      tickets: this.getCupones(this.f.monto.value, this.montoMin.toFixed(2))
     }
 
     console.log(cliente);
     console.log(factura);
-
-    if(this.cliente == 0 || this.cliente == undefined){
-      //Si el cliente no existe guardamos cliente, capturamos el id y guardamos facturas
-      this.clientService.add(cliente).subscribe({
-        next: ((resp) => {
-          this.toastrService.success('Cliente registrado con exito.');
-            console.log(resp);
-
+     if(this.id == 0 || this.id == undefined){
+      if(this.cliente == 0 || this.cliente == undefined){
+        //Si el cliente no existe guardamos cliente, capturamos el id y guardamos facturas
+        this.clientService.add(cliente).subscribe({
+          next: ((resp) => {
+            this.toastrService.success('Cliente registrado con éxito.');
             this.cliente = resp['id'];
             factura.user = this.cliente;
-            console.log(factura);
-          
-        }),
-        error: (error) => {
-          this.loading = false;
-          this.toastrService.error('Error al registrar cliente:', error.error.msg);
-        },
-        complete: () => this.billService.add(factura)
-      });
+          }),
+          error: () => {
+            this.loading = false;
+          },
+          complete: () => {
+            this.billService.add(factura).subscribe({
+              next: (() => {
+                this.toastrService.success('Factura registrada con éxito.');
+              }),
+              error: () => {
+                this.loading = false;
+              },
+              complete: () => this.router.navigate(['/bills'])
+            })
+          }
+        });
+      }else{
+        // Si el cliente existe tomamos el id del cliente y solo guardamos la factura
+
+        this.billService.add(factura).subscribe({
+          next: (() => {
+            this.toastrService.success('Factura registrada con éxito.');
+          }),
+          error: () => {
+            this.loading = false;
+          },
+          complete: () => this.router.navigate(['/bills'])
+        })
+      }
     }else{
-      // Si el cliente existe tomamos el id del cliente y solo guardamos la factura
-
-       this.billService.add(factura);
+      this.billService.update(this.id, factura);
     }
-
   }
 
+  getCupones(monto, montoMin){
+    return Math.trunc(monto / montoMin);
+  }
+
+  validarFechaHora(formGroup: AbstractControl): ValidationErrors | null {
+    const form = formGroup as FormGroup;
+    const fechaControl = form.get('fecha');
+    const horaControl = form.get('hora');
+
+    // Limpiar errores previos
+    if (horaControl?.errors) {
+      if (horaControl.errors['fechaNoSeleccionada'] && fechaControl?.value) {
+        delete horaControl.errors['fechaNoSeleccionada'];
+        if (Object.keys(horaControl.errors).length === 0) {
+          horaControl.setErrors(null);
+        }
+      }
+    }
+
+    if (!horaControl || !horaControl.value) {
+      return null;
+    }
+
+    // Validar formato de hora
+    const [horas, minutos] = horaControl.value.split(':').map(Number);
+    if (isNaN(horas) || isNaN(minutos) || horas < 0 || horas > 23 || minutos < 0 || minutos > 59) {
+      horaControl.setErrors({ ...horaControl.errors, formatoInvalido: true });
+      return { formatoInvalido: true };
+    }
+
+    // Validar que exista fecha
+    if (!fechaControl || !fechaControl.value) {
+      horaControl.setErrors({ ...horaControl.errors, fechaNoSeleccionada: true });
+      return { fechaNoSeleccionada: true };
+    }
+
+    // Validar hora futura solo si la fecha es hoy
+    const fechaSeleccionada = new Date(fechaControl.value);
+    const ahora = new Date();
+    
+    const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+    const fechaIngresada = new Date(
+      fechaSeleccionada.getFullYear(), 
+      fechaSeleccionada.getMonth(), 
+      fechaSeleccionada.getDate()
+    );
+
+    if (fechaIngresada.getTime() === hoy.getTime()) {
+      const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
+      const minutosIngresados = horas * 60 + minutos;
+      
+      if (minutosIngresados > minutosActuales) {
+        horaControl.setErrors({ ...horaControl.errors, horaFutura: true });
+        return { horaFutura: true };
+      } else {
+        // Limpiar error de hora futura si ya no aplica
+        if (horaControl.errors?.['horaFutura']) {
+          delete horaControl.errors['horaFutura'];
+          if (Object.keys(horaControl.errors).length === 0) {
+            horaControl.setErrors(null);
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  getHoraErrorMessage(): string {
+    const errors = this.form.get('hora')?.errors;
+    
+    if (errors?.['required']) {
+      return 'La hora es requerida';
+    } else if (errors?.['formatoInvalido']) {
+      return 'Formato de hora inválido';
+    } else if (errors?.['horaFutura']) {
+      return 'La hora no puede ser mayor a la hora actual';
+    }
+    
+    return '';
+  }
 }

@@ -20,11 +20,13 @@ export class ErrorInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
             catchError(err => {
                 if (err.status === 401) {
-                    this.toastrService.error('', err.error.error.msg);
-                    //this.authService.logout();
+                    this.toastrService.error('', err.error.msg);
+                    this.authService.logout();
                 } else if (err.status === 404) {
                     this.toastrService.error('', err.error.msg);
                 } else if (err.status === 500) {
+                    this.toastrService.error('', err.error.msg);
+                } else if (err.status === 409) {
                     this.toastrService.error('', err.error.msg);
                 }
 
