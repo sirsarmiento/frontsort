@@ -204,7 +204,7 @@
               <div class="col-4">
                 <mat-form-field>
                   <mat-label>Fecha</mat-label>
-                    <input formControlName="fecha" matInput [matDatepicker]="fecha" readonly [min]="minFecha" [max]="maxFecha">
+                    <input formControlName="fecha" matInput [matDatepicker]="fecha" readonly [min]="minFecha" [max]="maxFecha" (dateChange)="onFechaChange($event)">
                       <mat-datepicker-toggle matSuffix [for]="fecha"></mat-datepicker-toggle>
                       <mat-datepicker #fecha></mat-datepicker>
                     <mat-error *ngIf="submitted && f.fecha.errors">

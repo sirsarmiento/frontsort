@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { Tasa } from 'src/app/core/models/Lotery/tasa';
 import { TasaService } from 'src/app/core/services/Lotery/tasa.service';
-import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-tasa',
@@ -23,7 +22,6 @@ export class TasaComponent implements OnInit {
   @ViewChild(MatSort, { static: false }) sort: MatSort;
 
   constructor(
-    private authService:AuthService,
     private tasaService: TasaService,
     private router: Router,
     public matDialog: MatDialog,

@@ -13,6 +13,7 @@ import { Local } from 'src/app/core/models/Lotery/local';
 import { UserService } from 'src/app/core/services/user.service';
 import { User, userObservable } from 'src/app/core/models/user';
 import Swal from 'sweetalert2';
+import { Tasa } from 'src/app/core/models/Lotery/tasa';
 
 @Component({
   selector: 'app-add-bill',
@@ -38,6 +39,9 @@ export class AddBillComponent implements OnInit {
   ciudades:Array<SelectOption>;
 
   locales: Local[] = [];
+  tasas: Tasa[] = [];
+
+  localId: number;
 
   constructor(
     private billService: BillService,
@@ -68,8 +72,9 @@ export class AddBillComponent implements OnInit {
 
 
   getLastTasa(){
-    this.tasaService.getAll().subscribe((resp: any) => {
-       this.tasa = Number(resp.data[0].monto);
+    this.tasaService.getAll().subscribe((resp: Tasa[]) => {
+       this.tasas = resp;
+       console.log(this.tasas);
     });
   }
 
@@ -78,8 +83,34 @@ export class AddBillComponent implements OnInit {
       this.locales = resp.data;
     });
   }
-      
 
+  onFechaChange(event: any): void {
+    const fechaSeleccionada = event.value; // ¡Importante! Usar event.value, no event.target.value
+    
+    // Formatear la fecha si es necesario (dependiendo de cómo estén almacenadas en tus tasas)
+    const fechaFormateada = this.formatDate(fechaSeleccionada);
+    
+    this.tasa = this.obtenerMontoPorFecha(fechaFormateada);
+    
+    const local = this.locales.find(l => l.id === this.localId);
+    if (local) {
+      this.montoMin = local.monto * this.tasa;
+    }
+  }
+
+  // Función para formatear la fecha a YYYY-MM-DD
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+  }
+
+  obtenerMontoPorFecha(fecha: string): number | null {
+    const tasaEncontrada = this.tasas['data'].find(tasa => tasa.fecha === fecha);
+    return tasaEncontrada ? tasaEncontrada.monto : null;
+  }
+      
   back() {
     this.router.navigate(['/bills']);
     this.billService.resetData();
@@ -88,7 +119,6 @@ export class AddBillComponent implements OnInit {
 async searchClient() {
   if(this.f.nroDocumentoIdentidad.value != ''){
     const resp = await this.clientService.getUserByCi(this.f.nroDocumentoIdentidad.value);
-    console.log(resp);
 
     if (resp) {
       this.cliente = resp[0].id;
@@ -116,10 +146,7 @@ async searchClient() {
 }
 
   getMontoMin(id: number) {
-    const local = this.locales.find(l => l.id === id);
-    if (local) {
-      this.montoMin = local.monto * this.tasa;
-    }
+    this.localId = id;
   }
 
   setValues(){
@@ -184,6 +211,10 @@ async searchClient() {
     }
 
     this.submitted = true;
+
+    console.log(this.f.fecha.value);
+
+    return;
 
     if (this.form.invalid) { return; }
 

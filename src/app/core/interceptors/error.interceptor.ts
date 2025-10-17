@@ -5,12 +5,12 @@ import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-    constructor(private authService: AuthService, private toastrService: ToastrService) {}
+    constructor(private authService: AuthService, private toastrService: ToastrService, private router: Router,) {}
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const isInclude = this.isOnTheBlackList(request.url, environment.endpoints.handle_error_blackList);
@@ -20,7 +20,8 @@ export class ErrorInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
             catchError(err => {
                 if (err.status === 401) {
-                    this.toastrService.error('', err.error.msg);
+                    this.toastrService.error('', err.message);
+                    this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
                     this.authService.logout();
                 } else if (err.status === 404) {
                     this.toastrService.error('', err.error.msg);
