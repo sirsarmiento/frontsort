@@ -178,7 +178,7 @@
               <div class="col-8">
                 <mat-form-field>
                     <mat-label>Local Comercial</mat-label>
-                    <mat-select  formControlName="local" (selectionChange)="getMontoMin($event.value)">
+                    <mat-select  formControlName="local" (selectionChange)="getLocal($event.value)">
                         <mat-option *ngFor="let l of locales" [value]="l.id">
                           {{ l.nombre }}
                         </mat-option>

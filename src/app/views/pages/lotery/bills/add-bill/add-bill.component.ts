@@ -11,8 +11,6 @@ import { TasaService } from 'src/app/core/services/Lotery/tasa.service';
 import { LocalService } from 'src/app/core/services/Lotery/local.service';
 import { Local } from 'src/app/core/models/Lotery/local';
 import { UserService } from 'src/app/core/services/user.service';
-import { User, userObservable } from 'src/app/core/models/user';
-import Swal from 'sweetalert2';
 import { Tasa } from 'src/app/core/models/Lotery/tasa';
 
 @Component({
@@ -60,6 +58,8 @@ export class AddBillComponent implements OnInit {
   get f() { return this.form.controls; }
 
   async ngOnInit() {
+    this.f.fecha.setValue(this.maxFecha);
+
     this.setValues();
     this.getLastTasa();
     this.getLocales();
@@ -70,11 +70,9 @@ export class AddBillComponent implements OnInit {
     }
   }
 
-
   getLastTasa(){
     this.tasaService.getAll().subscribe((resp: Tasa[]) => {
        this.tasas = resp;
-       console.log(this.tasas);
     });
   }
 
@@ -84,6 +82,28 @@ export class AddBillComponent implements OnInit {
     });
   }
 
+  getLocal(id: number) {
+    this.localId = id;
+
+    const fechaFormateada = this.formatDate(this.f.fecha.value);
+    
+    this.tasa = this.obtenerMontoPorFecha(fechaFormateada);
+    
+    this.getMontoMin(this.localId);
+
+    if (this.tasa == null) this.toastrService.info('No existe tasa para la fecha seleccionada.');
+    console.log(this.tasa);
+  }
+
+
+  getMontoMin(id: number) {
+    const local = this.locales.find(l => l.id === id);
+    console.log(local);
+    if (local) {
+      this.montoMin = local.monto * this.tasa;
+    }
+  }
+
   onFechaChange(event: any): void {
     const fechaSeleccionada = event.value; // ¡Importante! Usar event.value, no event.target.value
     
@@ -91,11 +111,11 @@ export class AddBillComponent implements OnInit {
     const fechaFormateada = this.formatDate(fechaSeleccionada);
     
     this.tasa = this.obtenerMontoPorFecha(fechaFormateada);
+
+    if (this.tasa == null) this.toastrService.info('No existe tasa para la fecha seleccionada.');
     
-    const local = this.locales.find(l => l.id === this.localId);
-    if (local) {
-      this.montoMin = local.monto * this.tasa;
-    }
+    this.getMontoMin(this.localId);
+
   }
 
   // Función para formatear la fecha a YYYY-MM-DD
@@ -116,37 +136,33 @@ export class AddBillComponent implements OnInit {
     this.billService.resetData();
   }
 
-async searchClient() {
-  if(this.f.nroDocumentoIdentidad.value != ''){
-    const resp = await this.clientService.getUserByCi(this.f.nroDocumentoIdentidad.value);
+  async searchClient() {
+    if(this.f.nroDocumentoIdentidad.value != ''){
+      const resp = await this.clientService.getUserByCi(this.f.nroDocumentoIdentidad.value);
 
-    if (resp) {
-      this.cliente = resp[0].id;
-      this.f.tipoDocumentoIdentidad.setValue(resp[0].tipoDocumentoIdentidad);
-      this.f.email.setValue(resp[0].email);
-      this.f.primerNombre.setValue(resp[0].primerNombre);
-      this.f.segundoNombre.setValue(resp[0].segundoNombre);
-      this.f.primerApellido.setValue(resp[0].primerApellido);
-      this.f.segundoApellido.setValue(resp[0].segundoApellido);
-      this.f.estado.setValue(resp[0].estado.id);
-      this.getCiudades(resp[0].estado.id);
-      this.f.ciudad.setValue(resp[0].ciudad.id);
-      this.f.direccion.setValue(resp[0].direccion);
+      if (resp) {
+        this.cliente = resp[0].id;
+        this.f.tipoDocumentoIdentidad.setValue(resp[0].tipoDocumentoIdentidad);
+        this.f.email.setValue(resp[0].email);
+        this.f.primerNombre.setValue(resp[0].primerNombre);
+        this.f.segundoNombre.setValue(resp[0].segundoNombre);
+        this.f.primerApellido.setValue(resp[0].primerApellido);
+        this.f.segundoApellido.setValue(resp[0].segundoApellido);
+        this.f.estado.setValue(resp[0].estado.id);
+        this.getCiudades(resp[0].estado.id);
+        this.f.ciudad.setValue(resp[0].ciudad.id);
+        this.f.direccion.setValue(resp[0].direccion);
 
-      // Dividir el número de teléfono
-      const numeroCompleto = resp[0].telefonos[0].numero; // "04142781730"
+        // Dividir el número de teléfono
+        const numeroCompleto = resp[0].telefonos[0].numero; // "04142781730"
 
-      // Primeros 4 dígitos para código
-      this.f.codTelefono.setValue(numeroCompleto.substring(0, 4));
-      
-      // Resto del número (desde la posición 4 hasta el final)
-      this.f.nroTelefono.setValue(numeroCompleto.substring(4));
+        // Primeros 4 dígitos para código
+        this.f.codTelefono.setValue(numeroCompleto.substring(0, 4));
+        
+        // Resto del número (desde la posición 4 hasta el final)
+        this.f.nroTelefono.setValue(numeroCompleto.substring(4));
+      }
     }
-  }
-}
-
-  getMontoMin(id: number) {
-    this.localId = id;
   }
 
   setValues(){
@@ -204,17 +220,22 @@ async searchClient() {
   }
 
   onSubmit() {
+     if(this.tasa == null) {
+      this.toastrService.info('', 'No existe tasa para la fecha de la factura seleccionada, por favor crearla.');
+      return;
+    }
+
+    if(this.montoMin == 0) {
+      this.toastrService.info('', 'El monto mínimo no puede ser 0, valide el monto de la tasa.');
+      return;
+    }
 
     if(this.montoMin > this.f.monto.value) {
-      this.toastrService.error('', 'El monto debe ser mayor o igual al monto mínimo.');
+      this.toastrService.info('', 'El monto debe ser mayor o igual al monto mínimo.');
       return;
     }
 
     this.submitted = true;
-
-    console.log(this.f.fecha.value);
-
-    return;
 
     if (this.form.invalid) { return; }
 

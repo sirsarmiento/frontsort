@@ -17,6 +17,9 @@ export class AddTasaComponent implements OnInit {
   loading = false;
   submitted = false;
 
+  minFecha = new Date(2025, 0, 11);
+  maxFecha = new Date();
+
   constructor(
     private tasaService: TasaService,
     private formBuilder: FormBuilder,
@@ -29,6 +32,8 @@ export class AddTasaComponent implements OnInit {
   get f() { return this.form.controls; }
 
   async ngOnInit() {
+    this.f.fecha.setValue(this.maxFecha);
+
     this.setValues();
 }
 
@@ -41,6 +46,7 @@ export class AddTasaComponent implements OnInit {
     this.data$.subscribe( data => {
       if(data.id > 0){
         this.f.monto.setValue(data.monto);
+        this.f.fecha.setValue(data.fecha);
         this.id = data.id;
       }
     });
@@ -49,6 +55,7 @@ export class AddTasaComponent implements OnInit {
   myFormValues() {
     this.form = this.formBuilder.group({
       monto: ['',Validators.required],
+      fecha: ['',Validators.required],
     })
   }
 
@@ -62,6 +69,7 @@ export class AddTasaComponent implements OnInit {
 
     const tasa: Tasa = {
       monto: this.f.monto.value,
+      fecha: this.f.fecha.value
     }
 
     console.log(tasa);

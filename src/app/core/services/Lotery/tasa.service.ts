@@ -19,6 +19,7 @@ export class TasaService extends HttpService {
     return {
       id: 0,
       monto: 0,
+      fecha: new Date()
     };
 
   }
