@@ -465,36 +465,102 @@ export class AddBillComponent implements OnInit {
     this.capturedImagePreview = null;
   }
 
-  // Inicializar la cámara
+    // Inicializar la cámara
   async initializeCamera(): Promise<void> {
     try {
-      // Obtener dispositivos de cámara disponibles
+      // Verificar si el navegador soporta mediaDevices
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        this.fileError = 'Tu navegador no soporta el acceso a la cámara';
+        this.isCameraAvailable = false;
+        return;
+      }
+
+      // Primero obtener los dispositivos disponibles
       await this.getAvailableCameras();
       
+      // Si no hay cámaras disponibles
+      if (this.availableCameras.length === 0) {
+        this.fileError = 'No se encontraron cámaras disponibles en el dispositivo';
+        this.isCameraAvailable = false;
+        return;
+      }
+
       // Iniciar la cámara
       await this.startCamera();
       
       this.isCameraAvailable = true;
-    } catch (error) {
+      this.fileError = '';
+
+    } catch (error: any) {
       console.error('Error al inicializar la cámara:', error);
       this.isCameraAvailable = false;
-      this.fileError = 'No se pudo acceder a la cámara. Verifica los permisos.';
+      
+      // Mensajes de error más específicos
+      if (error.name === 'NotAllowedError') {
+        this.fileError = 'Permiso de cámara denegado. Por favor, permite el acceso a la cámara en la configuración de tu navegador.';
+      } else if (error.name === 'NotFoundError') {
+        this.fileError = 'No se encontró ninguna cámara disponible en el dispositivo.';
+      } else if (error.name === 'NotSupportedError') {
+        this.fileError = 'Tu navegador no soporta el acceso a la cámara.';
+      } else if (error.name === 'NotReadableError') {
+        this.fileError = 'La cámara está siendo usada por otra aplicación. Cierra otras aplicaciones que puedan estar usando la cámara.';
+      } else {
+        this.fileError = 'Error al acceder a la cámara. Verifica los permisos y que la cámara esté conectada.';
+      }
     }
   }
 
   // Obtener cámaras disponibles
   async getAvailableCameras(): Promise<void> {
     try {
+      console.log('Solicitando permisos de cámara...');
+      
+      // Primero obtener un stream temporal para tener permisos
+      const tempStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      
+      // Detener el stream temporal inmediatamente
+      tempStream.getTracks().forEach(track => {
+        track.stop();
+      });
+
+      // Esperar un momento para que los dispositivos estén disponibles
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Enumerar dispositivos
       const devices = await navigator.mediaDevices.enumerateDevices();
+      console.log('Dispositivos encontrados:', devices);
+      
       this.availableCameras = devices.filter(device => 
-        device.kind === 'videoinput'
+        device.kind === 'videoinput' && device.deviceId !== ''
       );
       
       this.hasMultipleCameras = this.availableCameras.length > 1;
-    } catch (error) {
+      
+      console.log(`Cámaras disponibles: ${this.availableCameras.length}`);
+      
+      if (this.availableCameras.length === 0) {
+        console.warn('No se encontraron cámaras disponibles');
+      }
+      
+    } catch (error: any) {
       console.error('Error al obtener cámaras:', error);
       this.availableCameras = [];
       this.hasMultipleCameras = false;
+      
+      // Si falla el permiso, intentar sin el stream temporal
+      if (error.name === 'NotAllowedError') {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          this.availableCameras = devices.filter(device => 
+            device.kind === 'videoinput' && device.deviceId !== ''
+          );
+          this.hasMultipleCameras = this.availableCameras.length > 1;
+        } catch (secondError) {
+          console.error('Error secundario al enumerar dispositivos:', secondError);
+        }
+      }
     }
   }
 
@@ -504,33 +570,72 @@ export class AddBillComponent implements OnInit {
       // Detener cámara anterior si existe
       this.stopCamera();
 
-      let videoConstraints: MediaTrackConstraints = {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        facingMode: 'environment'
-      };
+      let constraints: MediaStreamConstraints;
 
-      // Si hay cámaras específicas, usar la actual
-      if (this.availableCameras.length > 0) {
-        videoConstraints = {
-          ...videoConstraints,
-          deviceId: { exact: this.availableCameras[this.currentCameraIndex].deviceId }
-        };
+      // Intentar diferentes configuraciones en orden de preferencia
+      const configuraciones = [
+        // Configuración 1: Cámara específica si está disponible
+        () => {
+          if (this.availableCameras.length > 0) {
+            return {
+              video: {
+                deviceId: { exact: this.availableCameras[this.currentCameraIndex].deviceId },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+              }
+            };
+          }
+          return null;
+        },
+        // Configuración 2: Cámara trasera
+        () => ({
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        }),
+        // Configuración 3: Cualquier cámara
+        () => ({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        }),
+        // Configuración 4: Mínimos requisitos
+        () => ({
+          video: true
+        })
+      ];
+
+      let lastError: any;
+
+      for (const config of configuraciones) {
+        const configResult = config();
+        if (configResult === null) continue; // Saltar configuración no aplicable
+
+        try {
+          console.log('Intentando configuración:', configResult);
+          this.mediaStream = await navigator.mediaDevices.getUserMedia(configResult);
+          
+          if (this.videoElement && this.mediaStream) {
+            this.videoElement.nativeElement.srcObject = this.mediaStream;
+            this.isCameraReady = true;
+            console.log('Cámara iniciada exitosamente');
+            return; // Éxito, salir del método
+          }
+        } catch (error) {
+          console.log('Configuración fallida:', configResult, error);
+          lastError = error;
+          continue; // Intentar siguiente configuración
+        }
       }
 
-      const constraints: MediaStreamConstraints = {
-        video: videoConstraints
-      };
+      // Si todas las configuraciones fallaron
+      throw lastError || new Error('No se pudo iniciar ninguna cámara');
 
-
-      this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      if (this.videoElement) {
-        this.videoElement.nativeElement.srcObject = this.mediaStream;
-        this.isCameraReady = true;
-      }
-    } catch (error) {
-      console.error('Error al iniciar cámara:', error);
+    } catch (error: any) {
+      console.error('Error al iniciar cámara después de todos los intentos:', error);
       throw error;
     }
   }
