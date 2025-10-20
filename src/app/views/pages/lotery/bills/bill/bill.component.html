@@ -86,9 +86,13 @@
                 (click)="onCupon(row)">
                   <mat-icon class="font-weight-boldest">confirmation_number</mat-icon>
               </button>
-              <button mat-icon-button class="edit-color" matTooltip="Ver documento" 
-                (click)="onViewDocument(row.cliente)">
+              <button mat-icon-button class="edit-color" matTooltip="Ver Cédula" 
+                (click)="onViewDocument(row.cliente.fotoCedula)">
                 <mat-icon class="font-weight-boldest">portrait</mat-icon>
+              </button>
+               <button mat-icon-button class="edit-color" matTooltip="Ver Factura" 
+                (click)="onViewDocument(row.fotoBill)">
+                <mat-icon class="font-weight-boldest">receipt</mat-icon>
               </button>
             </td>
           </ng-container>

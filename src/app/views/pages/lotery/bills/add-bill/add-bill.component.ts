@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
@@ -40,6 +40,25 @@ export class AddBillComponent implements OnInit {
   tasas: Tasa[] = [];
 
   localId: number;
+
+// Nuevas propiedades para la cámara
+  showCameraDialog = false;
+  isCameraAvailable = false;
+  isCameraReady = false;
+  hasMultipleCameras = false;
+  capturedImage: File | null = null;
+  capturedImagePreview: string | null = null;
+  imagePreview: string | null = null;
+  
+  // Referencias a elementos del DOM
+  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+
+  // Stream de la cámara
+  private mediaStream: MediaStream | null = null;
+  private availableCameras: MediaDeviceInfo[] = [];
+  private currentCameraIndex = 0;
+  fileError: string = '';
 
   constructor(
     private billService: BillService,
@@ -92,13 +111,13 @@ export class AddBillComponent implements OnInit {
     this.getMontoMin(this.localId);
 
     if (this.tasa == null) this.toastrService.info('No existe tasa para la fecha seleccionada.');
-    console.log(this.tasa);
+
   }
 
 
   getMontoMin(id: number) {
     const local = this.locales.find(l => l.id === id);
-    console.log(local);
+
     if (local) {
       this.montoMin = local.monto * this.tasa;
     }
@@ -220,6 +239,14 @@ export class AddBillComponent implements OnInit {
   }
 
   onSubmit() {
+
+    // Validar que se haya capturado una imagen
+    if (!this.capturedImage) {
+      this.fileError = 'Debe capturar una foto de la factura';
+      return;
+    }
+
+
      if(this.tasa == null) {
       this.toastrService.info('', 'No existe tasa para la fecha de la factura seleccionada, por favor crearla.');
       return;
@@ -301,7 +328,8 @@ export class AddBillComponent implements OnInit {
           },
           complete: () => {
             this.billService.add(factura).subscribe({
-              next: (() => {
+              next: ((resp) => {
+                console.log(resp);
                 this.toastrService.success('Factura registrada con éxito.');
               }),
               error: () => {
@@ -315,8 +343,16 @@ export class AddBillComponent implements OnInit {
         // Si el cliente existe tomamos el id del cliente y solo guardamos la factura
 
         this.billService.add(factura).subscribe({
-          next: (() => {
+          next: ((resp) => {
             this.toastrService.success('Factura registrada con éxito.');
+            this.billService.uploadBillPhoto(resp['id'], this.capturedImage).subscribe(
+              ({
+                error: () => {
+                  this.loading = false;
+                },
+                complete: () => this.toastrService.success('Imagen Factura registrada con éxito.')
+              })
+            )
           }),
           error: () => {
             this.loading = false;
@@ -410,4 +446,255 @@ export class AddBillComponent implements OnInit {
     
     return '';
   }
+
+  // Método para abrir el diálogo de la cámara
+  async openCameraDialog(): Promise<void> {
+    this.showCameraDialog = true;
+    this.fileError = '';
+    
+    // Inicializar la cámara después de que el diálogo se muestre
+    setTimeout(() => {
+      this.initializeCamera();
+    }, 100);
+  }
+
+  // Método para cerrar el diálogo de la cámara
+  closeCameraDialog(): void {
+    this.stopCamera();
+    this.showCameraDialog = false;
+    this.capturedImagePreview = null;
+  }
+
+  // Inicializar la cámara
+  async initializeCamera(): Promise<void> {
+    try {
+      // Obtener dispositivos de cámara disponibles
+      await this.getAvailableCameras();
+      
+      // Iniciar la cámara
+      await this.startCamera();
+      
+      this.isCameraAvailable = true;
+    } catch (error) {
+      console.error('Error al inicializar la cámara:', error);
+      this.isCameraAvailable = false;
+      this.fileError = 'No se pudo acceder a la cámara. Verifica los permisos.';
+    }
+  }
+
+  // Obtener cámaras disponibles
+  async getAvailableCameras(): Promise<void> {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      this.availableCameras = devices.filter(device => 
+        device.kind === 'videoinput'
+      );
+      
+      this.hasMultipleCameras = this.availableCameras.length > 1;
+    } catch (error) {
+      console.error('Error al obtener cámaras:', error);
+      this.availableCameras = [];
+      this.hasMultipleCameras = false;
+    }
+  }
+
+  // Iniciar la cámara
+  async startCamera(): Promise<void> {
+    try {
+      // Detener cámara anterior si existe
+      this.stopCamera();
+
+      let videoConstraints: MediaTrackConstraints = {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: 'environment'
+      };
+
+      // Si hay cámaras específicas, usar la actual
+      if (this.availableCameras.length > 0) {
+        videoConstraints = {
+          ...videoConstraints,
+          deviceId: { exact: this.availableCameras[this.currentCameraIndex].deviceId }
+        };
+      }
+
+      const constraints: MediaStreamConstraints = {
+        video: videoConstraints
+      };
+
+
+      this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      if (this.videoElement) {
+        this.videoElement.nativeElement.srcObject = this.mediaStream;
+        this.isCameraReady = true;
+      }
+    } catch (error) {
+      console.error('Error al iniciar cámara:', error);
+      throw error;
+    }
+  }
+
+  // Detener la cámara
+  stopCamera(): void {
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream = null;
+    }
+    this.isCameraReady = false;
+  }
+
+  // Cambiar entre cámaras
+  async switchCamera(): Promise<void> {
+    if (this.availableCameras.length <= 1) return;
+
+    this.currentCameraIndex = (this.currentCameraIndex + 1) % this.availableCameras.length;
+    await this.startCamera();
+  }
+
+  // Capturar imagen
+  captureImage(): void {
+    if (!this.isCameraReady || !this.videoElement || !this.canvasElement) return;
+
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const context = canvas.getContext('2d');
+
+    if (!context) return;
+
+    // Configurar canvas con las dimensiones del video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Dibujar el frame actual del video en el canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convertir a Data URL para vista previa
+    this.capturedImagePreview = canvas.toDataURL('image/jpeg', 0.8);
+  }
+
+  // Aceptar la captura
+  acceptCapture(): void {
+    if (!this.capturedImagePreview) return;
+
+    // Convertir Data URL a File
+    this.dataURLtoFile(this.capturedImagePreview, 'factura_capturada.jpg')
+      .then(file => {
+        // Validar tamaño
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          this.fileError = 'La imagen capturada es demasiado grande';
+          return;
+        }
+
+        this.capturedImage = file;
+        this.imagePreview = this.capturedImagePreview;
+        this.closeCameraDialog();
+        this.fileError = '';
+      })
+      .catch(error => {
+        console.error('Error al procesar imagen:', error);
+        this.fileError = 'Error al procesar la imagen capturada';
+      });
+  }
+
+  // Reintentar captura
+  retryCapture(): void {
+    this.capturedImagePreview = null;
+  }
+
+  // Convertir Data URL a File
+  private dataURLtoFile(dataURL: string, filename: string): Promise<File> {
+    return new Promise((resolve, reject) => {
+      try {
+        const arr = dataURL.split(',');
+        const mime = arr[0].match(/:(.*?);/)![1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        
+        const file = new File([u8arr], filename, { type: mime });
+        resolve(file);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  // Eliminar imagen capturada
+  removeCapturedImage(): void {
+    this.capturedImage = null;
+    this.imagePreview = null;
+    this.capturedImagePreview = null;
+  }
+
+  // Limpiar recursos cuando el componente se destruya
+  ngOnDestroy(): void {
+    this.stopCamera();
+  }
+
+
+  // // Método para manejar la selección de archivos
+  // onFileSelected(event: any): void {
+  //   const file: File = event.target.files[0];
+    
+  //   if (file) {
+  //     // Validaciones
+  //     const maxSize = 5 * 1024 * 1024; // 5MB
+  //     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      
+  //     if (file.size > maxSize) {
+  //       this.fileError = 'El archivo no debe exceder los 5MB';
+  //       this.clearFileSelection();
+  //       return;
+  //     }
+      
+  //     if (!allowedTypes.includes(file.type)) {
+  //       this.fileError = 'Solo se permiten archivos JPG, PNG o PDF';
+  //       this.clearFileSelection();
+  //       return;
+  //     }
+      
+  //     this.selectedFile = file;
+  //     this.fileError = '';
+      
+  //     // Generar vista previa si es imagen
+  //     if (this.isImageFile(file)) {
+  //       this.generateImagePreview(file);
+  //     }
+  //   }
+  // }
+
+  // // Método para generar vista previa de imágenes
+  // private generateImagePreview(file: File): void {
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     this.imagePreview = reader.result;
+  //   };
+  //   reader.readAsDataURL(file);
+  // }
+
+  // // Verificar si el archivo es una imagen
+  // isImageFile(file: File): boolean {
+  //   return file.type.startsWith('image/');
+  // }
+
+  // // Eliminar archivo seleccionado
+  // removeFile(): void {
+  //   this.selectedFile = null;
+  //   this.imagePreview = null;
+  //   this.fileInput.nativeElement.value = '';
+  // }
+
+  // // Limpiar selección de archivo
+  // private clearFileSelection(): void {
+  //   this.selectedFile = null;
+  //   this.imagePreview = null;
+  //   this.fileInput.nativeElement.value = '';
+  // }
+
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpService } from '../http.service';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 import { ToastrService } from 'ngx-toastr';
@@ -101,5 +101,15 @@ export class BillService extends HttpService {
   editPrint( id: number, printNumber: number){
       const formData = { print: printNumber };
       return this.http.put(`${ environment.apiUrl }/factura/${id}/print`, formData );
+  }
+
+  // Método alternativo más simple sin progreso
+  uploadBillPhoto(facturaId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('photo', file, file.name);
+
+    return this.http.post(`${environment.apiUrl}/user/upload/bill/${facturaId}`, formData, {
+      responseType: 'json'
+    });
   }
 }

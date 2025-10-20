@@ -14,83 +14,82 @@
             </div>
           </div>
           
-
-            <div class="row">
-              <div class="col-2">
-                <mat-form-field>
-                  <mat-label>Tipo de Documento</mat-label>
-                  <mat-select formControlName="tipoDocumentoIdentidad">
-                    <mat-option value="V">V</mat-option>
-                    <mat-option value="E">E</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="submitted && f.tipoDocumentoIdentidad.errors">
-                    <mat-error *ngIf="f.tipoDocumentoIdentidad.errors.required">Seleccione tipo de documento</mat-error>
+          <div class="row">
+            <div class="col-2">
+              <mat-form-field>
+                <mat-label>Tipo de Documento</mat-label>
+                <mat-select formControlName="tipoDocumentoIdentidad">
+                  <mat-option value="V">V</mat-option>
+                  <mat-option value="E">E</mat-option>
+                </mat-select>
+                <mat-error *ngIf="submitted && f.tipoDocumentoIdentidad.errors">
+                  <mat-error *ngIf="f.tipoDocumentoIdentidad.errors.required">Seleccione tipo de documento</mat-error>
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-4">
+              <mat-form-field>
+                  <mat-label># Documento</mat-label>
+                  <input type="text"  matInput formControlName="nroDocumentoIdentidad" maxlength="9" (focusout)="searchClient()" [ngClass]="{ 'is-invalid': submitted && f.nroDocumentoIdentidad.errors }" >
+                  <mat-error *ngIf="submitted && f.nroDocumentoIdentidad.errors">
+                      <mat-error *ngIf="f.nroDocumentoIdentidad.errors.required">Ingrese número de documento</mat-error>
+                      <mat-error *ngIf="f.nroDocumentoIdentidad.errors?.pattern">Número de documento no valido</mat-error>
                   </mat-error>
-                </mat-form-field>
-              </div>
-              <div class="col-4">
+              </mat-form-field>
+            </div>
+            <div class="col-6">
+              <mat-form-field>
+                  <mat-label>Correo Electrónico</mat-label>
+                  <input type="text"  matInput formControlName="email" maxlength="50" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" (focusout)="setUserName()">
+                  <mat-error *ngIf="submitted && f.email.errors">
+                    <mat-error *ngIf="f.email.errors.required">Ingrese el correo electrónico</mat-error>
+                    <mat-error *ngIf="f.email.errors?.pattern">Email no valido</mat-error>
+                  </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-6">
                 <mat-form-field>
-                    <mat-label># Documento</mat-label>
-                    <input type="text"  matInput formControlName="nroDocumentoIdentidad" maxlength="9" (focusout)="searchClient()" [ngClass]="{ 'is-invalid': submitted && f.nroDocumentoIdentidad.errors }" >
-                    <mat-error *ngIf="submitted && f.nroDocumentoIdentidad.errors">
-                        <mat-error *ngIf="f.nroDocumentoIdentidad.errors.required">Ingrese número de documento</mat-error>
-                        <mat-error *ngIf="f.nroDocumentoIdentidad.errors?.pattern">Número de documento no valido</mat-error>
+                    <mat-label>Primer Nombre</mat-label>
+                    <input type="text" matInput formControlName="primerNombre" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.primerNombre.errors }" >
+                    <mat-error *ngIf="submitted && f.primerNombre.errors">
+                        <mat-error *ngIf="f.primerNombre.errors.required">Ingrese primer nombre</mat-error>
+                        <mat-error *ngIf="f.primerNombre.errors?.pattern">Primer nombre no valido</mat-error>
                     </mat-error>
                 </mat-form-field>
-              </div>
-              <div class="col-6">
+            </div>
+            <div class="col-6">
                 <mat-form-field>
-                    <mat-label>Correo Electrónico</mat-label>
-                    <input type="text"  matInput formControlName="email" maxlength="50" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" (focusout)="setUserName()">
-                    <mat-error *ngIf="submitted && f.email.errors">
-                      <mat-error *ngIf="f.email.errors.required">Ingrese el correo electrónico</mat-error>
-                      <mat-error *ngIf="f.email.errors?.pattern">Email no valido</mat-error>
+                    <mat-label>Segundo Nombre</mat-label>
+                    <input type="text"  matInput formControlName="segundoNombre" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.segundoNombre.errors }" >
+                    <mat-error *ngIf="submitted && f.segundoNombre.errors">
+                        <mat-error *ngIf="f.segundoNombre.errors.required">Ingrese segundo nombre</mat-error>
+                        <mat-error *ngIf="f.segundoNombre.errors?.pattern">Segundo nombre no valido</mat-error>
                     </mat-error>
                 </mat-form-field>
-              </div>
             </div>
+          </div>
 
-            <div class="row">
-              <div class="col-6">
-                  <mat-form-field>
-                      <mat-label>Primer Nombre</mat-label>
-                      <input type="text" matInput formControlName="primerNombre" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.primerNombre.errors }" >
-                      <mat-error *ngIf="submitted && f.primerNombre.errors">
-                          <mat-error *ngIf="f.primerNombre.errors.required">Ingrese primer nombre</mat-error>
-                          <mat-error *ngIf="f.primerNombre.errors?.pattern">Primer nombre no valido</mat-error>
-                      </mat-error>
-                  </mat-form-field>
-              </div>
-              <div class="col-6">
-                  <mat-form-field>
-                      <mat-label>Segundo Nombre</mat-label>
-                      <input type="text"  matInput formControlName="segundoNombre" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.segundoNombre.errors }" >
-                      <mat-error *ngIf="submitted && f.segundoNombre.errors">
-                          <mat-error *ngIf="f.segundoNombre.errors.required">Ingrese segundo nombre</mat-error>
-                          <mat-error *ngIf="f.segundoNombre.errors?.pattern">Segundo nombre no valido</mat-error>
-                      </mat-error>
-                  </mat-form-field>
-              </div>
+          <div class="row">
+            <div class="col-6">
+                <mat-form-field>
+                    <mat-label>Primer Apellido</mat-label>
+                    <input type="text" matInput formControlName="primerApellido" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.primerApellido.errors }" (focusout)="setUserName()"> 
+                    <mat-error *ngIf="submitted && f.primerApellido.errors">
+                        <mat-error *ngIf="f.primerApellido.errors.required">Ingrese primer apellido</mat-error>
+                        <mat-error *ngIf="f.primerApellido.errors?.pattern">Primer apellido no valido</mat-error>
+                    </mat-error>
+                </mat-form-field>
             </div>
-
-            <div class="row">
-              <div class="col-6">
-                  <mat-form-field>
-                      <mat-label>Primer Apellido</mat-label>
-                      <input type="text" matInput formControlName="primerApellido" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.primerApellido.errors }" (focusout)="setUserName()"> 
-                      <mat-error *ngIf="submitted && f.primerApellido.errors">
-                          <mat-error *ngIf="f.primerApellido.errors.required">Ingrese primer apellido</mat-error>
-                          <mat-error *ngIf="f.primerApellido.errors?.pattern">Primer apellido no valido</mat-error>
-                      </mat-error>
-                  </mat-form-field>
-              </div>
-              <div class="col-6">
-                  <mat-form-field>
-                      <mat-label>Segundo Apellido</mat-label>
-                      <input type="text"  matInput formControlName="segundoApellido" maxlength="25" >
-                  </mat-form-field>
-              </div>
+            <div class="col-6">
+                <mat-form-field>
+                    <mat-label>Segundo Apellido</mat-label>
+                    <input type="text"  matInput formControlName="segundoApellido" maxlength="25" >
+                </mat-form-field>
             </div>
+          </div>
             
           <div class="row">
               <div class="col-6">
@@ -235,35 +234,152 @@
               </div>
             </div>
 
-          <div class="row">
-            <div class="col-12">
-              <div class="btn-flex-end">
-                <div class="margin-button">
-                  <button mat-raised-button class="button-add-color" (click)="back()">
+            <div class="row">
+              <div class="col-4 btn-flex-ini">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="openCameraDialog()"
+                  type="button"
+                >
+                  <mat-icon>camera_alt</mat-icon>
+                  Capturar Foto de Factura
+                </button>
+              </div>
+              <div class="col-8">
+                <div class="btn-flex-end">
+                  <div class="margin-button">
+                    <button mat-raised-button class="button-add-color" (click)="back()">
+                      <div class="btn-content">
+                        <div class="button-txt">
+                          Regresar
+                        </div>
+                        <div class="icon">
+                          <mat-icon>undo</mat-icon>
+                        </div>
+                      </div>
+                    </button>
+                  </div>  
+            
+                  <button  mat-raised-button [disabled]="loading" class="button-add-color" (click)="onSubmit()">
                     <div class="btn-content">
-                      <div class="button-txt">
-                        Regresar
-                      </div>
-                      <div class="icon">
-                        <mat-icon>undo</mat-icon>
-                      </div>
+                        <div class="button-txt">
+                          Guardar
+                        </div>
+                        <div class="icon">
+                          <mat-icon>save</mat-icon>
+                        </div>
                     </div>
                   </button>
-                </div>  
-          
-                <button  mat-raised-button [disabled]="loading" class="button-add-color" (click)="onSubmit()">
-                  <div class="btn-content">
-                      <div class="button-txt">
-                        Guardar
-                      </div>
-                      <div class="icon">
-                        <mat-icon>save</mat-icon>
-                      </div>
+                </div>
+              </div>
+            </div>
+
+          <div class="row">
+            <div class="col-12">
+              <!-- Vista previa de la imagen capturada -->
+              <div class="file-upload-section">
+                <div *ngIf="capturedImage" class="file-info mt-3">
+                  <p><strong>Imagen capturada:</strong> factura_capturada.jpg</p>
+                  <p><strong>Tamaño:</strong> {{ (capturedImage.size / 1024 / 1024).toFixed(2) }} MB</p>
+                  
+                  <!-- Vista previa de la imagen capturada -->
+                  <div class="image-preview mt-2">
+                    <img [src]="imagePreview" alt="Vista previa de factura capturada" class="preview-image">
                   </div>
+                  
+                  <!-- Botones para acciones de la imagen -->
+                  <div class="mt-2">
+                    <button 
+                      mat-raised-button 
+                      color="primary" 
+                      (click)="openCameraDialog()"
+                      class="me-2"
+                    >
+                      <mat-icon>camera_alt</mat-icon>
+                      Volver a Capturar
+                    </button>
+                    <button 
+                      mat-raised-button 
+                      color="warn" 
+                      (click)="removeCapturedImage()"
+                    >
+                      <mat-icon>delete</mat-icon>
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+
+                <mat-error *ngIf="submitted && fileError">
+                  <mat-error>{{ fileError }}</mat-error>
+                </mat-error>
+              </div>
+            </div>
+        </div>
+
+        <!-- Diálogo para captura de cámara -->
+        <div *ngIf="showCameraDialog" class="camera-dialog-overlay">
+          <div class="camera-dialog">
+            <div class="camera-dialog-header">
+              <h3>Capturar Factura</h3>
+              <button mat-icon-button (click)="closeCameraDialog()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            
+            <div class="camera-dialog-content">
+              <!-- Mensaje de error si no hay cámara -->
+              <div *ngIf="!isCameraAvailable" class="camera-error">
+                <mat-icon class="error-icon">camera_off</mat-icon>
+                <p>No se pudo acceder a la cámara. Por favor, verifica los permisos o conecta una cámara.</p>
+              </div>
+
+              <!-- Video de la cámara -->
+              <div *ngIf="isCameraAvailable" class="camera-container">
+                <video #videoElement autoplay playsinline class="camera-video"></video>
+                <canvas #canvasElement class="camera-canvas" style="display: none;"></canvas>
+              </div>
+
+              <!-- Controles de la cámara -->
+              <div *ngIf="isCameraAvailable" class="camera-controls">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="captureImage()"
+                  [disabled]="!isCameraReady"
+                >
+                  <mat-icon>camera</mat-icon>
+                  Capturar Foto
                 </button>
+                
+                <button 
+                  mat-raised-button 
+                  (click)="switchCamera()"
+                  *ngIf="hasMultipleCameras"
+                >
+                  <mat-icon>flip_camera_android</mat-icon>
+                  Cambiar Cámara
+                </button>
+              </div>
+
+              <!-- Vista previa de la captura -->
+              <div *ngIf="capturedImagePreview" class="capture-preview">
+                <h4>Vista previa de la captura</h4>
+                <img [src]="capturedImagePreview" alt="Vista previa de captura" class="preview-image">
+                <div class="preview-actions">
+                  <button mat-raised-button color="primary" (click)="acceptCapture()">
+                    <mat-icon>check</mat-icon>
+                    Aceptar
+                  </button>
+                  <button mat-raised-button (click)="retryCapture()">
+                    <mat-icon>refresh</mat-icon>
+                    Volver a Capturar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+        </div>
       </div>
     </div>
   </form>

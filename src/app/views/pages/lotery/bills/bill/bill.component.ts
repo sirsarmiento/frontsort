@@ -78,13 +78,12 @@ export class BillComponent implements OnInit {
     });
   }
 
-  onViewDocument(row: ClientBill){
+  onViewDocument(fotoCedula: string){
     this.matDialog.open(ModalGenericComponent, {
-      data: { urlPhoto:  row.fotoCedula },
+      data: { urlPhoto:  fotoCedula },
       width: '38%',
       disableClose: true,
       id: 'modal-params'
     });
   }
-
 }
