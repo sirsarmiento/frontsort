@@ -15,7 +15,8 @@ import { Tasa } from 'src/app/core/models/Lotery/tasa';
 
 @Component({
   selector: 'app-add-bill',
-  templateUrl: './add-bill.component.html'
+  templateUrl: './add-bill.component.html',
+  styleUrls: ['./add-bill.component.scss']
 })
 export class AddBillComponent implements OnInit {
   private userSubscription: Subscription;
@@ -51,8 +52,8 @@ export class AddBillComponent implements OnInit {
   imagePreview: string | null = null;
   
   // Referencias a elementos del DOM
-  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
 
   // Stream de la cámara
   private mediaStream: MediaStream | null = null;
@@ -329,8 +330,15 @@ export class AddBillComponent implements OnInit {
           complete: () => {
             this.billService.add(factura).subscribe({
               next: ((resp) => {
-                console.log(resp);
                 this.toastrService.success('Factura registrada con éxito.');
+                this.billService.uploadBillPhoto(resp['id'], this.capturedImage).subscribe(
+                  ({
+                    error: () => {
+                      this.loading = false;
+                    },
+                    complete: () => this.toastrService.success('Imagen Factura registrada con éxito.')
+                  })
+                )
               }),
               error: () => {
                 this.loading = false;
@@ -447,6 +455,28 @@ export class AddBillComponent implements OnInit {
     return '';
   }
 
+  ngAfterViewInit() {
+    console.log('🔍 VideoElement en ngAfterViewInit:', this.videoElement);
+    if (this.videoElement?.nativeElement) {
+      console.log('✅ Native element encontrado:', this.videoElement.nativeElement);
+      console.log('📺 Tag:', this.videoElement.nativeElement.tagName);
+    } else {
+      console.error('❌ VideoElement NO disponible en ngAfterViewInit');
+      // Mostrar ayuda para debug
+      this.debugVideoElement();
+    }
+  }
+
+  private debugVideoElement() {
+    // Verificar si el elemento existe en el DOM
+    const videoElements = document.getElementsByTagName('video');
+    console.log('🎥 Videos en DOM:', videoElements.length);
+    
+    for (let i = 0; i < videoElements.length; i++) {
+      console.log(`Video ${i}:`, videoElements[i]);
+    }
+  }
+
   // Método para abrir el diálogo de la cámara
   async openCameraDialog(): Promise<void> {
     this.showCameraDialog = true;
@@ -466,48 +496,22 @@ export class AddBillComponent implements OnInit {
   }
 
     // Inicializar la cámara
-  async initializeCamera(): Promise<void> {
+
+  async initializeCamera() {
     try {
-      // Verificar si el navegador soporta mediaDevices
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        this.fileError = 'Tu navegador no soporta el acceso a la cámara';
-        this.isCameraAvailable = false;
-        return;
-      }
-
-      // Primero obtener los dispositivos disponibles
-      await this.getAvailableCameras();
-      
-      // Si no hay cámaras disponibles
-      if (this.availableCameras.length === 0) {
-        this.fileError = 'No se encontraron cámaras disponibles en el dispositivo';
-        this.isCameraAvailable = false;
-        return;
-      }
-
-      // Iniciar la cámara
+      console.log('🔄 Inicializando cámara...');
       await this.startCamera();
-      
-      this.isCameraAvailable = true;
-      this.fileError = '';
-
-    } catch (error: any) {
-      console.error('Error al inicializar la cámara:', error);
-      this.isCameraAvailable = false;
-      
-      // Mensajes de error más específicos
-      if (error.name === 'NotAllowedError') {
-        this.fileError = 'Permiso de cámara denegado. Por favor, permite el acceso a la cámara en la configuración de tu navegador.';
-      } else if (error.name === 'NotFoundError') {
-        this.fileError = 'No se encontró ninguna cámara disponible en el dispositivo.';
-      } else if (error.name === 'NotSupportedError') {
-        this.fileError = 'Tu navegador no soporta el acceso a la cámara.';
-      } else if (error.name === 'NotReadableError') {
-        this.fileError = 'La cámara está siendo usada por otra aplicación. Cierra otras aplicaciones que puedan estar usando la cámara.';
-      } else {
-        this.fileError = 'Error al acceder a la cámara. Verifica los permisos y que la cámara esté conectada.';
-      }
+    } catch (error) {
+      console.error('❌ Error al inicializar cámara:', error);
+      // Mostrar mensaje al usuario
+      this.showCameraError();
     }
+  }
+
+  
+  private showCameraError() {
+    // Aquí puedes mostrar un mensaje en la UI al usuario
+    console.error('No se pudo acceder a la cámara. Verifica los permisos.');
   }
 
   // Obtener cámaras disponibles
@@ -564,90 +568,187 @@ export class AddBillComponent implements OnInit {
     }
   }
 
-  // Iniciar la cámara
-  async startCamera(): Promise<void> {
-    try {
-      // Detener cámara anterior si existe
-      this.stopCamera();
+async startCamera(): Promise<void> {
+  try {
+    this.stopCamera();
 
-      let constraints: MediaStreamConstraints;
+    // 1. Asegurar que el elemento video esté disponible
+    await this.ensureVideoElementReady();
 
-      // Intentar diferentes configuraciones en orden de preferencia
-      const configuraciones = [
-        // Configuración 1: Cámara específica si está disponible
-        () => {
-          if (this.availableCameras.length > 0) {
-            return {
-              video: {
-                deviceId: { exact: this.availableCameras[this.currentCameraIndex].deviceId },
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-              }
-            };
-          }
-          return null;
+    // 2. Verificar mediaDevices
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('El navegador no soporta acceso a la cámara');
+    }
+
+    const video = this.videoElement.nativeElement;
+    let lastError: any;
+
+    const configuraciones = [
+      // Configuración 1: Cámara específica
+      () => {
+        if (this.availableCameras.length > 0) {
+          return {
+            video: {
+              deviceId: { exact: this.availableCameras[this.currentCameraIndex].deviceId },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              frameRate: { ideal: 30 }
+            },
+            audio: false
+          };
+        }
+        return null;
+      },
+      // Configuración 2: Cámara trasera
+      () => ({
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 }
         },
-        // Configuración 2: Cámara trasera
-        () => ({
-          video: {
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        }),
-        // Configuración 3: Cualquier cámara
-        () => ({
-          video: {
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        }),
-        // Configuración 4: Mínimos requisitos
-        () => ({
-          video: true
-        })
-      ];
+        audio: false
+      }),
+      // Configuración 3: Cualquier cámara
+      () => ({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 }
+        },
+        audio: false
+      })
+    ];
 
-      let lastError: any;
+    for (const [index, config] of configuraciones.entries()) {
+      const configResult = config();
+      if (configResult === null) continue;
 
-      for (const config of configuraciones) {
-        const configResult = config();
-        if (configResult === null) continue; // Saltar configuración no aplicable
+      try {
+        console.log(`Intentando configuración ${index + 1}:`, configResult);
+        
+        this.mediaStream = await navigator.mediaDevices.getUserMedia(configResult);
+        
+        if (!this.mediaStream) {
+          throw new Error('MediaStream es null');
+        }
 
-        try {
-          console.log('Intentando configuración:', configResult);
-          this.mediaStream = await navigator.mediaDevices.getUserMedia(configResult);
-          
-          if (this.videoElement && this.mediaStream) {
-            this.videoElement.nativeElement.srcObject = this.mediaStream;
-            this.isCameraReady = true;
-            console.log('Cámara iniciada exitosamente');
-            return; // Éxito, salir del método
-          }
-        } catch (error) {
-          console.log('Configuración fallida:', configResult, error);
-          lastError = error;
-          continue; // Intentar siguiente configuración
+        const videoTracks = this.mediaStream.getVideoTracks();
+        if (videoTracks.length === 0) {
+          this.isCameraAvailable = false;
+          throw new Error('No hay tracks de video en el stream');
+        }
+
+        this.isCameraAvailable = true;
+
+        console.log('Cámara iniciada. Track de video:', videoTracks[0].label);
+
+        // Asignar el stream al elemento video
+        video.srcObject = this.mediaStream;
+
+        // Esperar a que el video esté listo
+        await this.waitForVideoReady(video);
+
+        this.isCameraReady = true;
+        console.log('Cámara iniciada exitosamente');
+        return;
+
+      } catch (error: any) {
+        console.log(`Configuración ${index + 1} falló:`, error.message);
+        lastError = error;
+        
+        if (this.mediaStream) {
+          this.stopCamera();
         }
       }
-
-      // Si todas las configuraciones fallaron
-      throw lastError || new Error('No se pudo iniciar ninguna cámara');
-
-    } catch (error: any) {
-      console.error('Error al iniciar cámara después de todos los intentos:', error);
-      throw error;
     }
-  }
 
-  // Detener la cámara
-  stopCamera(): void {
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
-      this.mediaStream = null;
-    }
+    throw lastError || new Error('Todas las configuraciones de cámara fallaron');
+
+  } catch (error: any) {
+    console.error('Error al iniciar cámara:', error);
     this.isCameraReady = false;
+    throw error;
   }
+}
+
+// Método para asegurar que el elemento video esté listo
+private async ensureVideoElementReady(): Promise<void> {
+  const maxAttempts = 10;
+  const delay = 100; // ms
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (this.videoElement && this.videoElement.nativeElement) {
+      const video = this.videoElement.nativeElement;
+      
+      // Verificar adicionalmente que el elemento esté en el DOM
+      if (document.contains(video)) {
+        console.log('Elemento video disponible en el intento:', attempt);
+        return;
+      }
+    }
+
+    if (attempt === maxAttempts) {
+      throw new Error(`Elemento video no disponible después de ${maxAttempts} intentos. Verifica que @ViewChild esté configurado correctamente.`);
+    }
+
+    console.log(`Esperando por elemento video... intento ${attempt}`);
+    await this.delay(delay);
+  }
+}
+
+// Método auxiliar para delay
+private delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+private waitForVideoReady(video: HTMLVideoElement): Promise<void> {
+  return new Promise((resolve) => {
+    if (video.readyState >= 2) { // HAVE_CURRENT_DATA o mayor
+      resolve();
+      return;
+    }
+
+    const onLoadedMetadata = () => {
+      video.removeEventListener('loadedmetadata', onLoadedMetadata);
+      resolve();
+    };
+
+    const onError = () => {
+      video.removeEventListener('error', onError);
+      resolve(); // Resolvemos igual para no bloquear
+    };
+
+    video.addEventListener('loadedmetadata', onLoadedMetadata);
+    video.addEventListener('error', onError);
+
+    // Timeout de seguridad
+    setTimeout(() => {
+      video.removeEventListener('loadedmetadata', onLoadedMetadata);
+      video.removeEventListener('error', onError);
+      resolve();
+    }, 3000);
+  });
+}
+
+
+// Método stopCamera mejorado
+stopCamera(): void {
+  if (this.mediaStream) {
+    console.log('Deteniendo cámara...');
+    this.mediaStream.getTracks().forEach(track => {
+      console.log('Deteniendo track:', track.kind, track.label);
+      track.stop();
+    });
+    this.mediaStream = null;
+  }
+
+  if (this.videoElement && this.videoElement.nativeElement) {
+    this.videoElement.nativeElement.srcObject = null;
+  }
+
+  this.isCameraReady = false;
+}
 
   // Cambiar entre cámaras
   async switchCamera(): Promise<void> {

@@ -277,6 +277,7 @@
 
           <div class="row">
             <div class="col-12">
+              <video #videoElement autoplay playsinline></video>
               <!-- Vista previa de la imagen capturada -->
               <div class="file-upload-section">
                 <div *ngIf="capturedImage" class="file-info mt-3">
@@ -320,28 +321,9 @@
         <!-- Diálogo para captura de cámara -->
         <div *ngIf="showCameraDialog" class="camera-dialog-overlay">
           <div class="camera-dialog">
-            <div class="camera-dialog-header">
-              <h3>Capturar Factura</h3>
-              <button mat-icon-button (click)="closeCameraDialog()">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
             
-            <div class="camera-dialog-content">
-              <!-- Mensaje de error si no hay cámara -->
-              <div *ngIf="!isCameraAvailable" class="camera-error">
-                <mat-icon class="error-icon">camera_off</mat-icon>
-                <p>No se pudo acceder a la cámara. Por favor, verifica los permisos o conecta una cámara.</p>
-              </div>
-
-              <!-- Video de la cámara -->
-              <div *ngIf="isCameraAvailable" class="camera-container">
-                <video #videoElement autoplay playsinline class="camera-video"></video>
-                <canvas #canvasElement class="camera-canvas" style="display: none;"></canvas>
-              </div>
-
               <!-- Controles de la cámara -->
-              <div *ngIf="isCameraAvailable" class="camera-controls">
+              <div *ngIf="isCameraAvailable && !capturedImagePreview" class="camera-controls">
                 <button 
                   mat-raised-button 
                   color="primary" 
@@ -360,6 +342,28 @@
                   <mat-icon>flip_camera_android</mat-icon>
                   Cambiar Cámara
                 </button>
+              </div>
+            <!-- <div class="camera-dialog-header">
+              <button mat-icon-button (click)="closeCameraDialog()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div> -->
+            
+            <div class="camera-dialog-content">
+              <!-- Mensaje de error si no hay cámara -->
+              <div *ngIf="!isCameraAvailable" class="camera-error">
+                <mat-icon class="error-icon">camera_off</mat-icon>
+                <p>No se pudo acceder a la cámara. Por favor, verifica los permisos o conecta una cámara.</p>
+                <button mat-raised-button color="primary" (click)="initializeCamera()" class="mt-2">
+                  <mat-icon>refresh</mat-icon>
+                  Reintentar
+                </button>
+              </div>
+
+              <!-- Video de la cámara -->
+              <div *ngIf="isCameraAvailable && !capturedImagePreview" class="camera-container">
+                <video #videoElement autoplay playsinline class="camera-video"></video>
+                <canvas #canvasElement class="camera-canvas" style="display: none;"></canvas>
               </div>
 
               <!-- Vista previa de la captura -->
