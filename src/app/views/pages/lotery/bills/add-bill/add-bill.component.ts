@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
@@ -61,6 +61,9 @@ export class AddBillComponent implements OnInit {
   private currentCameraIndex = 0;
   fileError: string = '';
 
+  // Declarar la propiedad stream
+  private stream: MediaStream | null = null;
+
   constructor(
     private billService: BillService,
     private clientService: UserService,
@@ -70,6 +73,7 @@ export class AddBillComponent implements OnInit {
     private toastrService: ToastrService,
     private tasaService: TasaService,
     private localService: LocalService,
+    private cdr: ChangeDetectorRef
   ) {
       this.myFormValues();
       this.data$ = billService.sharing;
@@ -456,12 +460,10 @@ export class AddBillComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    console.log('🔍 VideoElement en ngAfterViewInit:', this.videoElement);
     if (this.videoElement?.nativeElement) {
       console.log('✅ Native element encontrado:', this.videoElement.nativeElement);
       console.log('📺 Tag:', this.videoElement.nativeElement.tagName);
     } else {
-      console.error('❌ VideoElement NO disponible en ngAfterViewInit');
       // Mostrar ayuda para debug
       this.debugVideoElement();
     }
@@ -470,17 +472,14 @@ export class AddBillComponent implements OnInit {
   private debugVideoElement() {
     // Verificar si el elemento existe en el DOM
     const videoElements = document.getElementsByTagName('video');
-    console.log('🎥 Videos en DOM:', videoElements.length);
-    
-    for (let i = 0; i < videoElements.length; i++) {
-      console.log(`Video ${i}:`, videoElements[i]);
-    }
   }
 
   // Método para abrir el diálogo de la cámara
   async openCameraDialog(): Promise<void> {
     this.showCameraDialog = true;
-    this.fileError = '';
+    
+     // Forzar detección de cambios para mostrar el modal
+    this.cdr.detectChanges();
     
     // Inicializar la cámara después de que el diálogo se muestre
     setTimeout(() => {
@@ -493,6 +492,7 @@ export class AddBillComponent implements OnInit {
     this.stopCamera();
     this.showCameraDialog = false;
     this.capturedImagePreview = null;
+    this.cdr.detectChanges();
   }
 
     // Inicializar la cámara
@@ -569,168 +569,58 @@ export class AddBillComponent implements OnInit {
   }
 
 async startCamera(): Promise<void> {
-  try {
+    try {
+    // Detener cámara anterior si existe
     this.stopCamera();
+    
+    // Pequeño delay para asegurar que el modal está renderizado
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // 1. Asegurar que el elemento video esté disponible
-    await this.ensureVideoElementReady();
-
-    // 2. Verificar mediaDevices
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('El navegador no soporta acceso a la cámara');
-    }
-
-    const video = this.videoElement.nativeElement;
-    let lastError: any;
-
-    const configuraciones = [
-      // Configuración 1: Cámara específica
-      () => {
-        if (this.availableCameras.length > 0) {
-          return {
-            video: {
-              deviceId: { exact: this.availableCameras[this.currentCameraIndex].deviceId },
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-              frameRate: { ideal: 30 }
-            },
-            audio: false
-          };
-        }
-        return null;
-      },
-      // Configuración 2: Cámara trasera
-      () => ({
-        video: {
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30 }
-        },
-        audio: false
-      }),
-      // Configuración 3: Cualquier cámara
-      () => ({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30 }
-        },
-        audio: false
-      })
-    ];
-
-    for (const [index, config] of configuraciones.entries()) {
-      const configResult = config();
-      if (configResult === null) continue;
-
-      try {
-        console.log(`Intentando configuración ${index + 1}:`, configResult);
-        
-        this.mediaStream = await navigator.mediaDevices.getUserMedia(configResult);
-        
-        if (!this.mediaStream) {
-          throw new Error('MediaStream es null');
-        }
-
-        const videoTracks = this.mediaStream.getVideoTracks();
-        if (videoTracks.length === 0) {
-          this.isCameraAvailable = false;
-          throw new Error('No hay tracks de video en el stream');
-        }
-
-        this.isCameraAvailable = true;
-
-        console.log('Cámara iniciada. Track de video:', videoTracks[0].label);
-
-        // Asignar el stream al elemento video
-        video.srcObject = this.mediaStream;
-
-        // Esperar a que el video esté listo
-        await this.waitForVideoReady(video);
-
-        this.isCameraReady = true;
-        console.log('Cámara iniciada exitosamente');
-        return;
-
-      } catch (error: any) {
-        console.log(`Configuración ${index + 1} falló:`, error.message);
-        lastError = error;
-        
-        if (this.mediaStream) {
-          this.stopCamera();
-        }
+    const constraints = {
+      video: { 
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
       }
-    }
+    };
 
-    throw lastError || new Error('Todas las configuraciones de cámara fallaron');
-
-  } catch (error: any) {
-    console.error('Error al iniciar cámara:', error);
-    this.isCameraReady = false;
-    throw error;
-  }
-}
-
-// Método para asegurar que el elemento video esté listo
-private async ensureVideoElementReady(): Promise<void> {
-  const maxAttempts = 10;
-  const delay = 100; // ms
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+    
     if (this.videoElement && this.videoElement.nativeElement) {
       const video = this.videoElement.nativeElement;
+      video.srcObject = this.stream;
       
-      // Verificar adicionalmente que el elemento esté en el DOM
-      if (document.contains(video)) {
-        console.log('Elemento video disponible en el intento:', attempt);
-        return;
-      }
+      // Esperar a que el video esté listo
+      video.onloadedmetadata = () => {
+        video.play()
+          .then(() => {
+            console.log('Cámara iniciada correctamente');
+            this.isCameraAvailable = true;
+            this.isCameraReady = true;
+            // Forzar la detección de cambios
+            this.cdr.detectChanges();
+          })
+          .catch(error => {
+            console.error('Error al reproducir video:', error);
+            this.isCameraAvailable = false;
+            this.cdr.detectChanges();
+          });
+      };
+      
+      video.onerror = () => {
+        console.error('Error en el elemento de video');
+        this.isCameraAvailable = false;
+        this.cdr.detectChanges();
+      };
     }
-
-    if (attempt === maxAttempts) {
-      throw new Error(`Elemento video no disponible después de ${maxAttempts} intentos. Verifica que @ViewChild esté configurado correctamente.`);
-    }
-
-    console.log(`Esperando por elemento video... intento ${attempt}`);
-    await this.delay(delay);
+    
+  } catch (error) {
+    console.error('Error al acceder a la cámara:', error);
+    this.isCameraAvailable = false;
+    this.isCameraReady = false;
+    this.cdr.detectChanges();
   }
 }
-
-// Método auxiliar para delay
-private delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-private waitForVideoReady(video: HTMLVideoElement): Promise<void> {
-  return new Promise((resolve) => {
-    if (video.readyState >= 2) { // HAVE_CURRENT_DATA o mayor
-      resolve();
-      return;
-    }
-
-    const onLoadedMetadata = () => {
-      video.removeEventListener('loadedmetadata', onLoadedMetadata);
-      resolve();
-    };
-
-    const onError = () => {
-      video.removeEventListener('error', onError);
-      resolve(); // Resolvemos igual para no bloquear
-    };
-
-    video.addEventListener('loadedmetadata', onLoadedMetadata);
-    video.addEventListener('error', onError);
-
-    // Timeout de seguridad
-    setTimeout(() => {
-      video.removeEventListener('loadedmetadata', onLoadedMetadata);
-      video.removeEventListener('error', onError);
-      resolve();
-    }, 3000);
-  });
-}
-
 
 // Método stopCamera mejorado
 stopCamera(): void {
@@ -750,13 +640,6 @@ stopCamera(): void {
   this.isCameraReady = false;
 }
 
-  // Cambiar entre cámaras
-  async switchCamera(): Promise<void> {
-    if (this.availableCameras.length <= 1) return;
-
-    this.currentCameraIndex = (this.currentCameraIndex + 1) % this.availableCameras.length;
-    await this.startCamera();
-  }
 
   // Capturar imagen
   captureImage(): void {
@@ -777,6 +660,9 @@ stopCamera(): void {
 
     // Convertir a Data URL para vista previa
     this.capturedImagePreview = canvas.toDataURL('image/jpeg', 0.8);
+
+    // Forzar detección de cambios para mostrar la vista previa
+    this.cdr.detectChanges();
   }
 
   // Aceptar la captura
@@ -807,6 +693,7 @@ stopCamera(): void {
   // Reintentar captura
   retryCapture(): void {
     this.capturedImagePreview = null;
+    this.cdr.detectChanges();
   }
 
   // Convertir Data URL a File
@@ -841,6 +728,17 @@ stopCamera(): void {
   // Limpiar recursos cuando el componente se destruya
   ngOnDestroy(): void {
     this.stopCamera();
+  }
+
+  onVideoCanPlay() {
+    console.log('El video puede reproducirse');
+    this.isCameraReady = true;
+    this.cdr.detectChanges();
+  }
+
+  onVideoLoaded() {
+    console.log('Video cargado y listo');
+    this.isCameraReady = true;
   }
 
 

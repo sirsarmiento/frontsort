@@ -318,71 +318,76 @@
             </div>
         </div>
 
-        <!-- Diálogo para captura de cámara -->
         <div *ngIf="showCameraDialog" class="camera-dialog-overlay">
-          <div class="camera-dialog">
-            
-              <!-- Controles de la cámara -->
-              <div *ngIf="isCameraAvailable && !capturedImagePreview" class="camera-controls">
-                <button 
-                  mat-raised-button 
-                  color="primary" 
-                  (click)="captureImage()"
-                  [disabled]="!isCameraReady"
-                >
-                  <mat-icon>camera</mat-icon>
-                  Capturar Foto
-                </button>
-                
-                <button 
-                  mat-raised-button 
-                  (click)="switchCamera()"
-                  *ngIf="hasMultipleCameras"
-                >
-                  <mat-icon>flip_camera_android</mat-icon>
-                  Cambiar Cámara
-                </button>
-              </div>
-            <!-- <div class="camera-dialog-header">
-              <button mat-icon-button (click)="closeCameraDialog()">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div> -->
-            
-            <div class="camera-dialog-content">
-              <!-- Mensaje de error si no hay cámara -->
-              <div *ngIf="!isCameraAvailable" class="camera-error">
-                <mat-icon class="error-icon">camera_off</mat-icon>
-                <p>No se pudo acceder a la cámara. Por favor, verifica los permisos o conecta una cámara.</p>
-                <button mat-raised-button color="primary" (click)="initializeCamera()" class="mt-2">
-                  <mat-icon>refresh</mat-icon>
-                  Reintentar
-                </button>
-              </div>
+  <div class="camera-dialog">
+    <div class="camera-dialog-content">
+      
+      <!-- Estado de carga -->
+      <div *ngIf="isCameraAvailable && !isCameraReady && !capturedImagePreview" 
+           class="camera-loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Inicializando cámara...</p>
+      </div>
 
-              <!-- Video de la cámara -->
-              <div *ngIf="isCameraAvailable && !capturedImagePreview" class="camera-container">
-                <video #videoElement autoplay playsinline class="camera-video"></video>
-                <canvas #canvasElement class="camera-canvas" style="display: none;"></canvas>
-              </div>
+      <!-- Mensaje de error -->
+      <div *ngIf="!isCameraAvailable && !capturedImagePreview" class="camera-error">
+        <mat-icon class="error-icon">camera_off</mat-icon>
+        <p>No se pudo acceder a la cámara.</p>
+        <button mat-raised-button color="primary" (click)="initializeCamera()" class="mt-2">
+          <mat-icon>refresh</mat-icon>
+          Reintentar
+        </button>
+      </div>
 
-              <!-- Vista previa de la captura -->
-              <div *ngIf="capturedImagePreview" class="capture-preview">
-                <h4>Vista previa de la captura</h4>
-                <img [src]="capturedImagePreview" alt="Vista previa de captura" class="preview-image">
-                <div class="preview-actions">
-                  <button mat-raised-button color="primary" (click)="acceptCapture()">
-                    <mat-icon>check</mat-icon>
-                    Aceptar
-                  </button>
-                  <button mat-raised-button (click)="retryCapture()">
-                    <mat-icon>refresh</mat-icon>
-                    Volver a Capturar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+      <!-- Cámara activa -->
+      <div *ngIf="isCameraAvailable && isCameraReady && !capturedImagePreview">
+        <div class="camera-container">
+          <video #videoElement 
+                 autoplay 
+                 playsinline 
+                 muted
+                 class="camera-video"
+                 (loadedmetadata)="onVideoLoaded()"
+                 (canplay)="onVideoCanPlay()">
+          </video>
+          <canvas #canvasElement class="camera-canvas" style="display: none;"></canvas>
+        </div>
+        
+        <!-- Controles -->
+        <div class="camera-controls">
+          <button mat-fab color="primary" (click)="captureImage()"
+                  [disabled]="!isCameraReady">
+            <mat-icon>camera</mat-icon>
+          </button>
+          
+
+          <button mat-raised-button (click)="closeCameraDialog()">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+        </div>
+      </div>
+
+      <!-- Vista previa -->
+      <div *ngIf="capturedImagePreview" class="capture-preview">
+        <h4>Vista previa de la captura</h4>
+        <img [src]="capturedImagePreview" alt="Vista previa" class="preview-image">
+        <div class="preview-actions">
+          <button mat-raised-button color="primary" (click)="acceptCapture()">
+            <mat-icon>check</mat-icon>
+            Aceptar
+          </button>
+          <button mat-raised-button (click)="retryCapture()">
+            <mat-icon>refresh</mat-icon>
+            Volver a Capturar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
         </div>
       </div>
     </div>
