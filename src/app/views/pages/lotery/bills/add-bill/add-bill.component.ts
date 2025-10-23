@@ -335,14 +335,16 @@ export class AddBillComponent implements OnInit {
             this.billService.add(factura).subscribe({
               next: ((resp) => {
                 this.toastrService.success('Factura registrada con éxito.');
-                this.billService.uploadBillPhoto(resp['id'], this.capturedImage).subscribe(
-                  ({
-                    error: () => {
-                      this.loading = false;
-                    },
-                    complete: () => this.toastrService.success('Imagen Factura registrada con éxito.')
-                  })
-                )
+                  if (this.capturedImage) {
+                    this.billService.uploadBillPhoto(resp['id'], this.capturedImage).subscribe(
+                      ({
+                        error: () => {
+                          this.loading = false;
+                        },
+                        complete: () => this.toastrService.success('Imagen Factura registrada con éxito.')
+                      })
+                    )
+                  }
               }),
               error: () => {
                 this.loading = false;
@@ -357,14 +359,18 @@ export class AddBillComponent implements OnInit {
         this.billService.add(factura).subscribe({
           next: ((resp) => {
             this.toastrService.success('Factura registrada con éxito.');
-            this.billService.uploadBillPhoto(resp['id'], this.capturedImage).subscribe(
-              ({
-                error: () => {
-                  this.loading = false;
-                },
-                complete: () => this.toastrService.success('Imagen Factura registrada con éxito.')
-              })
-            )
+
+            if (this.capturedImage) {
+              this.billService.uploadBillPhoto(resp['id'], this.capturedImage).subscribe(
+                ({
+                  error: () => {
+                    this.loading = false;
+                  },
+                  complete: () => this.toastrService.success('Imagen Factura registrada con éxito.')
+                })
+              )
+            }
+            
           }),
           error: () => {
             this.loading = false;

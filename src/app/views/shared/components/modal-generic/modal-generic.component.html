@@ -1,7 +1,7 @@
 <div class="modal-container">
   <div class="modal-header">
     <div class="modal-title">
-      Documento de Identidad
+      Documento
     </div>
     <button class="close-button" mat-icon-button matTooltip="Cerrar" (click)="closeModal()">
       <mat-icon class="close-icon">close</mat-icon>
@@ -10,7 +10,7 @@
 
   <div class="modal-content">
     <div class="image-container">
-      <img [src]="urlPhoto" alt="Documento de identidad" class="modal-image">
+      <img [src]="urlPhoto" alt="Documento" class="modal-image">
       <div class="image-overlay" *ngIf="!urlPhoto">
         <mat-icon class="placeholder-icon">image</mat-icon>
         <p>Imagen no disponible</p>

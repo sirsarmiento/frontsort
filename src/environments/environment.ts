@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  name_system: 'PAFAR',
+  name_system: 'SIF',
   ttl: 28800000,
   //apiUrl: 'https://bofficegiepstage.pafar.com.ve/public/api',
   apiAuth: 'http://localhost:8090/backsorteo/public',

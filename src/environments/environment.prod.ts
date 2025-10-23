@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   ttl: 28800000,
-  name_system: 'PAFAR',
+  name_system: 'SIF',
   apiUrl: 'https://bofficesorteosstage.pafar.com.ve/public/api',
   apiAuth: 'https://bofficesorteosstage.pafar.com.ve/public',
   appUrl: 'https://bofficesorteosstage.pafar.com.ve/',

@@ -72,7 +72,7 @@ export class BillComponent implements OnInit {
   onCupon(row: BillQr){
     this.matDialog.open(ModalCuponComponent, {
       data: { bill:  row },
-      width: '38%',
+      width: '40%',
       disableClose: true,
       id: 'modal-params'
     });
