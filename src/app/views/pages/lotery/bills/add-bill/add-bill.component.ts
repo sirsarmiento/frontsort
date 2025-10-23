@@ -628,49 +628,49 @@ async startCamera(): Promise<void> {
   }
 }
 
-// Método stopCamera mejorado
-stopCamera(): void {
-  if (this.mediaStream) {
-    console.log('Deteniendo cámara...');
-    this.mediaStream.getTracks().forEach(track => {
-      console.log('Deteniendo track:', track.kind, track.label);
-      track.stop();
-    });
-    this.mediaStream = null;
-  }
-
-  if (this.videoElement && this.videoElement.nativeElement) {
-    this.videoElement.nativeElement.srcObject = null;
-  }
-
-  this.isCameraReady = false;
-}
-
 
   // Capturar imagen
-  captureImage(): void {
-    if (!this.isCameraReady || !this.videoElement || !this.canvasElement) return;
+captureImage(): void {
+  if (!this.isCameraReady || !this.videoElement || !this.canvasElement) return;
 
+  const video = this.videoElement.nativeElement;
+  const canvas = this.canvasElement.nativeElement;
+  const context = canvas.getContext('2d');
+
+  if (!context) return;
+
+  // Configurar canvas con las dimensiones del video
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  // Dibujar el frame actual del video en el canvas
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Convertir a Data URL para vista previa
+  this.capturedImagePreview = canvas.toDataURL('image/jpeg', 0.8);
+
+  // Detener la cámara
+  this.stopCamera();
+
+  // Forzar detección de cambios
+  this.cdr.detectChanges();
+}
+
+// Método para detener la cámara
+stopCamera(): void {
+  if (this.videoElement) {
     const video = this.videoElement.nativeElement;
-    const canvas = this.canvasElement.nativeElement;
-    const context = canvas.getContext('2d');
-
-    if (!context) return;
-
-    // Configurar canvas con las dimensiones del video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    // Dibujar el frame actual del video en el canvas
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Convertir a Data URL para vista previa
-    this.capturedImagePreview = canvas.toDataURL('image/jpeg', 0.8);
-
-    // Forzar detección de cambios para mostrar la vista previa
-    this.cdr.detectChanges();
+    const stream = video.srcObject as MediaStream;
+    
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+    
+    video.srcObject = null;
   }
-
+  
+  this.isCameraReady = false;
+}
   // Aceptar la captura
   acceptCapture(): void {
     if (!this.capturedImagePreview) return;
@@ -699,6 +699,7 @@ stopCamera(): void {
   // Reintentar captura
   retryCapture(): void {
     this.capturedImagePreview = null;
+    this.startCamera();
     this.cdr.detectChanges();
   }
 

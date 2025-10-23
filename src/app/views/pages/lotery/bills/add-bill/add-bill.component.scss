@@ -1,94 +1,52 @@
-.camera-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.camera-dialog {
-  background: white;
-  border-radius: 12px;
-  width: 95%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.camera-dialog-content {
-  padding: 0;
-  position: relative;
-}
-
-.camera-container {
-  position: relative;
-  width: 100%;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-}
-
-.camera-video {
-  width: 100%;
-  height: auto;
-  max-height: 70vh;
-  object-fit: contain;
-  display: block;
-}
-
 .camera-controls {
+  padding: 16px 20px;
   display: flex;
-  gap: 12px;
-  justify-content: center;
-  padding: 20px;
-  background: white;
-  border-top: 1px solid #e0e0e0;
+  justify-content: space-between; /* Separa los botones a los extremos */
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: -4px; /* Acerca los controles a la imagen */
+}
+
+/* Botón de captura centrado */
+.camera-controls button[mat-fab] {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 64px;
+}
+
+/* Botón de cancelar alineado a la izquierda */
+.camera-controls button[mat-raised-button] {
+  margin-left: 0;
+  z-index: 2; /* Para que esté por encima del botón flotante */
+}
+
+/* Si quieres el botón de cancelar a la derecha en lugar de izquierda */
+.camera-controls button[mat-raised-button] {
+  margin-left: auto; /* Esto lo empuja a la derecha */
+  z-index: 2;
+}
+
+.camera-active {
+  display: block;
 }
 
 .capture-preview {
   text-align: center;
-  padding: 20px;
 }
 
 .preview-image {
   max-width: 100%;
   max-height: 400px;
   border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  object-fit: contain;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .preview-actions {
+  margin-top: 16px;
   display: flex;
   gap: 12px;
   justify-content: center;
-  margin-top: 20px;
-  padding: 20px;
 }
 
-.camera-error {
-  text-align: center;
-  padding: 40px 20px;
-  color: #f44336;
-}
-
-.error-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 16px;
-}
-
-/* Asegurar que el video ocupe todo el espacio disponible */
-.camera-video:not([hidden]) {
-  display: block !important;
-  visibility: visible !important;
-}
