@@ -20,6 +20,7 @@ export class ClientBill {
     tipoDocumentoIdentidad: string;
     nroDocumentoIdentidad: string;
     nombreCompleto: string;
+    telefono: string;
     fotoCedula: string;
 }
 

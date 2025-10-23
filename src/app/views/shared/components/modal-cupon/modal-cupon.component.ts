@@ -7,40 +7,6 @@ import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-// Declaración de interfaces para Web Bluetooth
-declare global {
-  interface Navigator {
-    bluetooth: {
-      requestDevice(options?: {
-        filters?: Array<{ name?: string; services?: string[] }>;
-        optionalServices?: string[];
-        acceptAllDevices?: boolean;
-      }): Promise<BluetoothDevice>;
-    };
-  }
-}
-
-interface BluetoothDevice {
-  gatt: {
-    connect(): Promise<BluetoothRemoteGATTServer>;
-    disconnect(): void;
-  };
-}
-
-interface BluetoothRemoteGATTServer {
-  getPrimaryService(service: string): Promise<BluetoothRemoteGATTService>;
-  disconnect(): void;
-}
-
-interface BluetoothRemoteGATTService {
-  getCharacteristic(characteristic: string): Promise<BluetoothRemoteGATTCharacteristic>;
-}
-
-interface BluetoothRemoteGATTCharacteristic {
-  writeValue(data: BufferSource): Promise<void>;
-}
-
-
 export interface DialogData { bill: BillQr }
 
 
@@ -55,9 +21,8 @@ export class ModalCuponComponent implements OnInit {
   selectedRow;
   displayedColumns: string[] = ['fullName','dependence','position'];
   dataSource: MatTableDataSource<any>;
-
+  documento: string
   
-
   constructor(
      private billService: BillService,
      public dialogRef: MatDialogRef<ModalCuponComponent>,
@@ -110,29 +75,40 @@ export class ModalCuponComponent implements OnInit {
     return Math.trunc(row.monto / row.montoMin);
   }
 
-  // generarQRData(index: number): string {
-  //   // Concatenar tipoDocumentoIdentidad + nroDocumentoIdentidad
-  //   const documento = `${this.cliente.tipoDocumentoIdentidad}${this.cliente.nroDocumentoIdentidad}`;
+  generarQRData(index: number): string {
+     this.documento = `${this.cliente.tipoDocumentoIdentidad}${this.cliente.nroDocumentoIdentidad}`;
     
-  //   // Crear ID único para cada cupón: local.id + numero + índice
-  //   const cuponId = `${this.local.id}${this.numero}${index + 1}`;
-    
-  //   // agregar url de abajo al qr
-  //   //https://platformsorteosstage..com.ve/ganador?clienteId=123&localId=456&billNumber=789
+    // agregar url de abajo al qr
+    //https://platformsorteosstage..com.ve/ganador?clienteId=123&localId=456&billNumber=789
 
-  //   // Datos para el QR (puedes modificar según lo que necesites codificar)
-  //   const qrData = {
-  //     cuponId: cuponId,
-  //     cliente: this.cliente,
-  //     fecha: this.fecha,
-  //     monto: this.monto,
-  //     local: this.local.nombre,
-  //     cuponNumero: index + 1,
-  //     totalCupones: this.cupones
-  //   };
+    // Datos para el QR (puedes modificar según lo que necesites codificar)
+    const qrData = `GANADOR
 
-  //   return JSON.stringify(qrData);
-  // }
+      CLIENTE
+      Cedula: ${this.cliente.nroDocumentoIdentidad}
+      Nombre: ${this.cliente.nombreCompleto}
+      Telefono: ${this.cliente.telefono || 'No registrado'}
+
+      LOCAL
+      Nombre: ${this.local.nombre}
+
+      FACTURA
+      Numero: ${this.numero}
+      Fecha: ${this.formatearFecha(this.fecha)}`;
+
+    return qrData;
+  }
+
+  
+  formatearFecha(fecha): string {
+        const fechaObj = new Date(fecha);
+        
+        return new Intl.DateTimeFormat('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }).format(fechaObj);
+    }
 
   // Método para obtener el ID para mostrar en el template
   getCuponId(index: number): string {
@@ -140,7 +116,7 @@ export class ModalCuponComponent implements OnInit {
   }
 
   async onPrint() {
-    Swal.fire({
+    const result = await Swal.fire({
       title: `¿Estás seguro que deseas imprimir?`,
       text: `Se imprimirán ${this.cupones} cupones`,
       showDenyButton: true,
@@ -149,202 +125,21 @@ export class ModalCuponComponent implements OnInit {
       showLoaderOnConfirm: true,
       preConfirm: async () => {
         try {
-          await this.imprimirPDFConQR(); //PDF
-          // Actualizar estado de impresión en el servidor
-          this.billService.editPrint(this.id, 1).subscribe();
+          await this.imprimirPDFConQR();
+          await this.billService.editPrint(this.id, 1).toPromise();
           return true;
         } catch (error) {
           Swal.showValidationMessage(`Error al generar PDF: ${error}`);
-          console.log(`Error al generar PDF: ${error}`);
-          await this.imprimirPDFConQR();
           return false;
         }
       }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire('¡Éxito!', 'Cupones enviados a impresión', 'success');
-      }
-    });
-  }
-
-  private async pruebaRapida(): Promise<void> {
-  try {
-    const device = await navigator.bluetooth.requestDevice({
-      filters: [{ name: 'FRM-5809' }],
-      optionalServices: ['00001101-0000-1000-8000-00805f9b34fb']
     });
 
-    const server = await device.gatt!.connect();
-    const service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-    const characteristic = await service.getCharacteristic('00001101-0000-1000-8000-00805f9b34fb');
-
-    // Comandos simples de prueba
-    const testData = new TextEncoder().encode('HOLA MUNDO\n\nTEST IMPRESORA\n\n\n');
-    
-    // Esto SIEMPRE funciona
-    await characteristic.writeValue(testData.buffer);
-    
-    server.disconnect();
-    console.log('Test enviado - revisa la impresora');
-
-  } catch (error) {
-    console.error('Error en prueba:', error);
-  }
-}
-
-  private async imprimirDirectamenteBluetooth(): Promise<void> {
-    try {
-      console.log('=== INICIANDO CONEXIÓN BLUETOOTH ===');
-      
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{ name: 'FRM-5809' }],
-        optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] // Servicio SPP
-      });
-
-      const server = await device.gatt!.connect();
-      const service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-      const characteristic = await service.getCharacteristic('00001101-0000-1000-8000-00805f9b34fb');
-
-      const printData = this.generarComandosEscPosParaTodosCupones();
-      
-      // SOLUCIÓN: Usar el ArrayBuffer directamente
-      await characteristic.writeValue(printData); // printData es ArrayBuffer
-      
-      server.disconnect();
-      console.log('Impresión enviada');
-
-    } catch (error) {
-      console.error('Error:', error);
+    if (result.isConfirmed) {
+      Swal.fire('¡Éxito!', 'Cupones enviados a impresión', 'success');
     }
   }
 
-  // Método de delay
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-
-private generarComandosEscPosParaTodosCupones(): ArrayBuffer {
-  const commands: number[] = [];
-  
-  // Inicializar impresora
-  commands.push(0x1B, 0x40); // ESC @ - Inicializar
-  
-  // Generar cada cupón
-  for (let i = 0; i < this.cuponesArray.length; i++) {
-    if (i > 0) {
-      commands.push(0x0A, 0x0A); // Dos líneas en blanco
-    }
-    
-    // Encabezado centrado
-    commands.push(0x1B, 0x61, 0x01); // Centrar
-    const header = `CUPON ${i + 1}\n`;
-    for (let j = 0; j < header.length; j++) {
-      commands.push(header.charCodeAt(j));
-    }
-    
-    // ID del cupón
-    commands.push(0x1B, 0x61, 0x00); // Alinear izquierda
-    const idText = `ID: ${this.local.id}${this.numero}${i + 1}\n`;
-    for (let j = 0; j < idText.length; j++) {
-      commands.push(idText.charCodeAt(j));
-    }
-    
-    // QR Code
-    commands.push(0x1B, 0x61, 0x01); // Centrar
-    commands.push(...this.generarComandoQR(i));
-    
-    // Información del documento
-    const docText = `${this.cliente.tipoDocumentoIdentidad}-${this.cliente.nroDocumentoIdentidad}\n`;
-    for (let j = 0; j < docText.length; j++) {
-      commands.push(docText.charCodeAt(j));
-    }
-  }
-  
-  // Cortar papel
-  commands.push(0x1D, 0x56, 0x41, 0x10); // Cortar
-  
-  // Convertir a ArrayBuffer
-  const buffer = new ArrayBuffer(commands.length);
-  const view = new Uint8Array(buffer);
-  view.set(commands);
-  
-  return buffer;
-}
-
-  // Método auxiliar para agregar texto
-  private addTextToCommands(commands: number[], text: string): void {
-    for (let i = 0; i < text.length; i++) {
-      commands.push(text.charCodeAt(i));
-    }
-  }
-
-  // QR Code simplificado (compatible con más impresoras)
-  private addSimpleQRCode(commands: number[], index: number): void {
-    const qrData = this.generarQRData(index);
-    
-    // Comandos QR básicos (compatibles con la mayoría de impresoras)
-    commands.push(0x1B, 0x61, 0x01); // Center
-    
-    // Método alternativo para QR (más compatible)
-    try {
-      // Tamaño del QR
-      commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x43, 0x03);
-      // Nivel de corrección
-      commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x45, 0x31);
-      // Almacenar datos
-      const len = qrData.length + 3;
-      commands.push(0x1D, 0x28, 0x6B, len % 256, Math.floor(len / 256), 0x31, 0x50, 0x30);
-      // Datos
-      this.addTextToCommands(commands, qrData);
-      // Imprimir QR
-      commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x30);
-    } catch (error) {
-      console.warn('Error generando QR, usando texto alternativo');
-      this.addTextToCommands(commands, `[QR: ${qrData}]\n\n`);
-    }
-    
-    commands.push(0x0A, 0x0A); // Espacios después del QR
-  }
-
-private generarComandoQR(index: number): number[] {
-  const commands: number[] = [];
-  const qrData = this.generarQRData(index);
-  
-  console.log(`Generando QR para cupón ${index + 1}:`, qrData);
-  
-  // Comandos ESC/POS para QR Code
-  // Establecer tamaño del módulo QR (tamaño 6)
-  commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x43, 0x06);
-  
-  // Establecer corrección de error (nivel L - 30%)
-  commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x45, 0x30);
-  
-  // Almacenar datos QR en la memoria de impresión
-  const len = qrData.length + 3;
-  const pL = len % 256;
-  const pH = Math.floor(len / 256);
-  
-  commands.push(0x1D, 0x28, 0x6B, pL, pH, 0x31, 0x50, 0x30);
-  
-  // Agregar datos QR
-  for (let i = 0; i < qrData.length; i++) {
-    commands.push(qrData.charCodeAt(i));
-  }
-  
-  // Imprimir el símbolo QR
-  commands.push(0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x30);
-  
-  return commands;
-}
-
-generarQRData(index: number): string {
-  // Datos que irán en el QR - formato simple para evitar problemas
-  return `ID:${this.local.id}${this.numero}${index + 1}|DOC:${this.cliente.tipoDocumentoIdentidad}-${this.cliente.nroDocumentoIdentidad}`;
-}
-
-
-  //Codigo a continuacion imprime PDF
 
   private async imprimirPDFConQR(): Promise<void> {
     // Esperar más tiempo para que los QR se rendericen completamente
@@ -353,7 +148,7 @@ generarQRData(index: number): string {
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [80, 150]
+      format: [80, 100]
     });
 
     const cuponElementsArray = this.cuponElements.toArray();
@@ -382,7 +177,6 @@ generarQRData(index: number): string {
             clonedElement.style.padding = '15px';
             clonedElement.style.margin = '0 auto';
             clonedElement.style.backgroundColor = '#ffffff';
-            clonedElement.style.border = '2px solid #000';
             
             // Asegurar que las imágenes se carguen
             const images = clonedElement.getElementsByTagName('img');
@@ -462,47 +256,64 @@ generarQRData(index: number): string {
   }
 
   imprimirPDF(pdf: jsPDF): void {
-    // Crear blob del PDF
-    const pdfBlob = pdf.output('blob');
+    pdf.save(`cupones-${this.documento}.pdf`);
+    // // Crear blob del PDF
+    // const pdfBlob = pdf.output('blob');
     
-    // Crear URL para el blob
-    const pdfUrl = URL.createObjectURL(pdfBlob);
+    // // Crear URL para el blob
+    // const pdfUrl = URL.createObjectURL(pdfBlob);
     
-    // Crear iframe para impresión
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = pdfUrl;
+    // // Crear iframe para impresión
+    // const iframe = document.createElement('iframe');
+    // iframe.style.display = 'none';
+    // iframe.src = pdfUrl;
     
-    document.body.appendChild(iframe);
+    // document.body.appendChild(iframe);
     
-    iframe.onload = () => {
-      try {
-        // Intentar imprimir automáticamente
-        iframe.contentWindow?.print();
+    // iframe.onload = () => {
+    //   try {
+    //     // Intentar imprimir automáticamente
+    //     iframe.contentWindow?.print();
         
-        // Limpiar después de un tiempo
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-          URL.revokeObjectURL(pdfUrl);
-        }, 1000);
+    //     // Limpiar solo cuando se complete la impresión o se cancele
+    //     iframe.contentWindow?.addEventListener('afterprint', () => {
+    //       // Esperar un poco más antes de limpiar
+    //       setTimeout(() => {
+    //         document.body.removeChild(iframe);
+    //         URL.revokeObjectURL(pdfUrl);
+    //       }, 500);
+    //     });
         
-      } catch (error) {
-        console.error('Error al imprimir:', error);
+    //     // Timeout de seguridad por si el evento afterprint no se dispara
+    //     setTimeout(() => {
+    //       if (document.body.contains(iframe)) {
+    //         document.body.removeChild(iframe);
+    //         URL.revokeObjectURL(pdfUrl);
+    //       }
+    //     }, 30000); // 30 segundos como timeout de seguridad
         
-        // Fallback: Descargar PDF si la impresión automática falla
-        pdf.save(`cupones-${this.numero}.pdf`);
+    //   } catch (error) {
+    //     console.error('Error al imprimir:', error);
         
-        document.body.removeChild(iframe);
-        URL.revokeObjectURL(pdfUrl);
+    //     // Fallback: Descargar PDF si la impresión automática falla
+    //     this.descargarPDF(pdf);
         
-        Swal.fire({
-          icon: 'info',
-          title: 'PDF Listo',
-          text: 'El PDF se ha descargado. Por favor, imprímalo manualmente.',
-          confirmButtonText: 'Aceptar'
-        });
-      }
-    };
+    //     document.body.removeChild(iframe);
+    //     URL.revokeObjectURL(pdfUrl);
+        
+    //     Swal.fire({
+    //       icon: 'info',
+    //       title: 'PDF Listo',
+    //       text: 'El PDF se ha descargado. Por favor, imprímalo manualmente.',
+    //       confirmButtonText: 'Aceptar'
+    //     });
+    //   }
+    // };
+  }
+
+  // Método alternativo para descargar el PDF
+  private descargarPDF(pdf: jsPDF): void {
+    pdf.save(`cupones-${this.numero}.pdf`);
   }
 
   onEmail() {
