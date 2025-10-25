@@ -1,8 +1,11 @@
 <div class="main-content">
     <div class="row">
         <div class="col-12 align-right">
-            <button mat-icon-button matTooltip="PDF" class="edit-color" 
-                (click)="onPrint()"> 
+            <button *ngIf="userRoles?.includes('ADMINISTRADOR') || print === 0" 
+                    mat-icon-button 
+                    matTooltip="PDF" 
+                    class="edit-color" 
+                    (click)="onPrint()">
                 <mat-icon class="font-weight-boldest">print</mat-icon>
             </button>
             <!-- <button mat-icon-button matTooltip="Enviar email"   class="edit-color" 
@@ -26,8 +29,9 @@
                 <div class="cupon-body">
                     <div class="qr-container">
                         <qrcode 
-                        [qrdata]="generarQRData(i)"
+                        [qrdata]="generarQRData()"
                         [width]="250"
+                        [version]="10"
                         [errorCorrectionLevel]="'M'"
                         [elementType]="'img'">
                         </qrcode>

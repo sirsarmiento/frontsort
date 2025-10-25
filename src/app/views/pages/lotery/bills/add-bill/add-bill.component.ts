@@ -83,8 +83,6 @@ export class AddBillComponent implements OnInit {
 
   async ngOnInit() {
     this.f.fecha.setValue(this.maxFecha);
-
-    this.setValues();
     this.getLastTasa();
     this.getLocales();
       const objetoJSON = localStorage.getItem('cusr');
@@ -96,7 +94,8 @@ export class AddBillComponent implements OnInit {
 
   getLastTasa(){
     this.tasaService.getAll().subscribe((resp: Tasa[]) => {
-       this.tasas = resp;
+      this.tasas = resp;
+      this.setValues();
     });
   }
 
@@ -195,9 +194,17 @@ export class AddBillComponent implements OnInit {
       if(data != null && data.id > 0){
 
         this.f.nroFactura.setValue(data.numero);
-        this.f.fecha.setValue(data.fecha);
+        this.f.fecha.setValue(data.fecha + 'T00:00:00');
+        const dateObject = new Date(data.fecha + 'T00:00:00');
+
+        const fechaFormateada = this.formatDate(dateObject);
+    
+        this.tasa = this.obtenerMontoPorFecha(fechaFormateada);
+   
         this.f.hora.setValue(data.hora);
+
         this.f.monto.setValue(data.monto);
+
         this.montoMin = data.montoMin;
         this.f.local.setValue(data.local['id']);
 
@@ -209,6 +216,7 @@ export class AddBillComponent implements OnInit {
       }
     });
   }
+  
 
   async getCiudades(estadoId:any){
     this.ciudades = [];
@@ -246,10 +254,10 @@ export class AddBillComponent implements OnInit {
   onSubmit() {
 
     // Validar que se haya capturado una imagen
-    if (!this.capturedImage) {
-      this.fileError = 'Debe capturar una foto de la factura';
-      return;
-    }
+    // if (!this.capturedImage) {
+    //   this.toastrService.info('', 'Debe capturar una foto de la factura');
+    //   return;
+    // }
 
 
      if(this.tasa == null) {
@@ -304,21 +312,30 @@ export class AddBillComponent implements OnInit {
       ],
     }
 
+    let montoMin = Number(Number(this.montoMin).toFixed(2));
+
+    let fechaParaGuardar = this.f.fecha.value;
+
+    if(this.id == 0 || this.id == undefined){
+      fechaParaGuardar = this.formatDate(this.f.fecha.value);
+    }
+    
     const factura: Bill = {
       numero: this.f.nroFactura.value,
-      fecha: this.f.fecha.value,
+      fecha: fechaParaGuardar,
       hora: this.f.hora.value,
       monto: this.f.monto.value,
-      montoMin: Number(this.montoMin.toFixed(2)),
+      montoMin: montoMin,
       tasa: this.tasa,
       local: this.f.local.value,
       user: this.cliente,
       print: 0,
-      tickets: this.getCupones(this.f.monto.value, this.montoMin.toFixed(2))
+      tickets: this.getCupones(this.f.monto.value, montoMin)
     }
-
+    
     console.log(cliente);
     console.log(factura);
+
      if(this.id == 0 || this.id == undefined){
       if(this.cliente == 0 || this.cliente == undefined){
         //Si el cliente no existe guardamos cliente, capturamos el id y guardamos facturas
@@ -467,8 +484,7 @@ export class AddBillComponent implements OnInit {
 
   ngAfterViewInit() {
     if (this.videoElement?.nativeElement) {
-      console.log('✅ Native element encontrado:', this.videoElement.nativeElement);
-      console.log('📺 Tag:', this.videoElement.nativeElement.tagName);
+      //console.log('✅ Native element encontrado:', this.videoElement.nativeElement);
     } else {
       // Mostrar ayuda para debug
       this.debugVideoElement();
@@ -505,10 +521,8 @@ export class AddBillComponent implements OnInit {
 
   async initializeCamera() {
     try {
-      console.log('🔄 Inicializando cámara...');
       await this.startCamera();
     } catch (error) {
-      console.error('❌ Error al inicializar cámara:', error);
       // Mostrar mensaje al usuario
       this.showCameraError();
     }
@@ -523,8 +537,6 @@ export class AddBillComponent implements OnInit {
   // Obtener cámaras disponibles
   async getAvailableCameras(): Promise<void> {
     try {
-      console.log('Solicitando permisos de cámara...');
-      
       // Primero obtener un stream temporal para tener permisos
       const tempStream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' } 
@@ -540,15 +552,12 @@ export class AddBillComponent implements OnInit {
 
       // Enumerar dispositivos
       const devices = await navigator.mediaDevices.enumerateDevices();
-      console.log('Dispositivos encontrados:', devices);
       
       this.availableCameras = devices.filter(device => 
         device.kind === 'videoinput' && device.deviceId !== ''
       );
       
       this.hasMultipleCameras = this.availableCameras.length > 1;
-      
-      console.log(`Cámaras disponibles: ${this.availableCameras.length}`);
       
       if (this.availableCameras.length === 0) {
         console.warn('No se encontraron cámaras disponibles');
@@ -738,13 +747,11 @@ stopCamera(): void {
   }
 
   onVideoCanPlay() {
-    console.log('El video puede reproducirse');
     this.isCameraReady = true;
     this.cdr.detectChanges();
   }
 
   onVideoLoaded() {
-    console.log('Video cargado y listo');
     this.isCameraReady = true;
   }
 

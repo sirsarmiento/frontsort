@@ -25,7 +25,6 @@
                     <mat-label>Segundo Nombre</mat-label>
                     <input type="text"  matInput formControlName="secondName" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.secondName.errors }" >
                     <mat-error *ngIf="submitted && f.secondName.errors">
-                        <mat-error *ngIf="f.secondName.errors.required">Ingrese segundo nombre</mat-error>
                         <mat-error *ngIf="f.secondName.errors?.pattern">Segundo nombre no valido</mat-error>
                     </mat-error>
                 </mat-form-field>
@@ -48,7 +47,6 @@
                     <mat-label>Segundo Apellido</mat-label>
                     <input type="text"  matInput formControlName="secondLastName" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.secondLastName.errors }" >
                     <mat-error *ngIf="submitted && f.secondLastName.errors">
-                        <mat-error *ngIf="f.secondLastName.errors.required">Ingrese segundo apellido</mat-error>
                         <mat-error *ngIf="f.secondLastName.errors?.pattern">Segundo apellido no valido</mat-error>
                     </mat-error>
                 </mat-form-field>

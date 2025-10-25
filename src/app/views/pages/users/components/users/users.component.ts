@@ -35,6 +35,8 @@ export class UsersComponent implements OnInit {
     this.users = await this.userService.getUsers({ page: 1, rowByPage: 9999, word: null });
     this.initTable(this.users);
 
+    console.log(this.users);
+
     this._MatPaginatorIntl.itemsPerPageLabel="Usuarios por página";
   }
 

@@ -225,11 +225,20 @@
               </div>
               <div class="col-4">
                 <mat-form-field>
-                    <mat-label>Monto Total Bs.</mat-label>
-                    <input matInput currencyMask formControlName="monto" [ngClass]="{ 'is-invalid': submitted && f.monto.errors }" >
-                    <mat-error *ngIf="submitted && f.monto.errors">
-                      <mat-error *ngIf="f.monto.errors.required">Ingrese monto total</mat-error>
-                    </mat-error>
+                  <mat-label>Monto Total Bs.</mat-label>
+                  <input 
+                    matInput 
+                    type="number"
+                    formControlName="monto"
+                    step="0.01"
+                    min="0"
+                    [ngClass]="{ 'is-invalid': submitted && f.monto.errors }"
+                    placeholder="0.00">
+                  <span matPrefix>Bs. &nbsp;</span>
+                  <mat-error *ngIf="submitted && f.monto.errors">
+                    <mat-error *ngIf="f.monto.errors.required">Ingrese monto total</mat-error>
+                    <mat-error *ngIf="f.monto.errors.min">El monto debe ser mayor a 0</mat-error>
+                  </mat-error>
                 </mat-form-field>
               </div>
             </div>
@@ -243,7 +252,7 @@
                   type="button"
                 >
                   <mat-icon>camera_alt</mat-icon>
-                  Capturar Foto de Factura
+                  Capturar Factura
                 </button>
               </div>
               <div class="col-8">

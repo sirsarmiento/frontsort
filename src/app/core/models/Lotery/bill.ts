@@ -3,7 +3,7 @@
 export class Bill { 
     id?: number;
     numero: string;
-    fecha: Date;
+    fecha: string;
     hora: string;
     monto: number;
     montoMin: number;

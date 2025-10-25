@@ -181,7 +181,7 @@ export class AddUserComponent implements OnInit {
   myFormValues() {
     this.form = this.formBuilder.group({
       firstName: ['',Validators.compose([Validators.pattern(this.unamePattern),Validators.maxLength(25),Validators.minLength(3),Validators.required])],
-      secondName: ['',Validators.compose([Validators.pattern(this.unamePattern),Validators.maxLength(25),Validators.minLength(3),Validators.required])],
+      secondName: ['',Validators.compose([Validators.pattern(this.unamePattern),Validators.maxLength(25),Validators.minLength(3)])],
       lastName: ['',Validators.compose([Validators.pattern(this.unamePattern),Validators.maxLength(25),Validators.minLength(3),Validators.required])],
       secondLastName: ['',Validators.compose([Validators.pattern(this.unamePattern),Validators.maxLength(25),Validators.minLength(3)])],
       documentType: ['',Validators.required],

@@ -6,6 +6,7 @@ import { BillService } from 'src/app/core/services/Lotery/bill.service';
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 export interface DialogData { bill: BillQr }
 
@@ -22,18 +23,18 @@ export class ModalCuponComponent implements OnInit {
   displayedColumns: string[] = ['fullName','dependence','position'];
   dataSource: MatTableDataSource<any>;
   documento: string
-  
+  userRoles: any[] = [];
   constructor(
      private billService: BillService,
      public dialogRef: MatDialogRef<ModalCuponComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private authService: AuthService
+  ) {
+    const currentUser = this.authService.currentUser;
+    this.userRoles = currentUser.roles;
+  }
 
-
-
-
-
-  //@Input() data: any;
+  
 
   // Propiedades separadas para facilitar el acceso en el template
   id: number = 0;
@@ -51,6 +52,8 @@ export class ModalCuponComponent implements OnInit {
 
   ngOnInit() {
     this.initializeData();
+
+    console.log(this.userRoles);
   }
 
   initializeData() {
@@ -75,26 +78,40 @@ export class ModalCuponComponent implements OnInit {
     return Math.trunc(row.monto / row.montoMin);
   }
 
-  generarQRData(index: number): string {
+  generarQRData(): string {
      this.documento = `${this.cliente.tipoDocumentoIdentidad}${this.cliente.nroDocumentoIdentidad}`;
     
     // agregar url de abajo al qr
     //https://platformsorteosstage..com.ve/ganador?clienteId=123&localId=456&billNumber=789
 
     // Datos para el QR (puedes modificar según lo que necesites codificar)
-    const qrData = `GANADOR
+    // const qrData = `GANADOR
 
-      CLIENTE
-      Cedula: ${this.cliente.nroDocumentoIdentidad}
-      Nombre: ${this.cliente.nombreCompleto}
-      Telefono: ${this.cliente.telefono || 'No registrado'}
+    //   CLIENTE
+    //   Cedula: ${this.cliente.nroDocumentoIdentidad}
+    //   Nombre: ${this.cliente.nombreCompleto}
+    //   Telefono: ${this.cliente.telefono || 'No registrado'}
 
-      LOCAL
-      Nombre: ${this.local.nombre}
+    //   LOCAL
+    //   Nombre: ${this.local.nombre}
 
-      FACTURA
-      Numero: ${this.numero}
-      Fecha: ${this.formatearFecha(this.fecha)}`;
+    //   FACTURA
+    //   Numero: ${this.numero}
+    //   Fecha: ${this.formatearFecha(this.fecha)}
+    //   Monto: ${this.monto}`;
+
+    const qrData = JSON.stringify({
+        tipo: "GANADOR",
+        cliente: {
+          cedula: this.cliente.nroDocumentoIdentidad,
+          nombre: this.cliente.nombreCompleto,
+          telefono: this.cliente.telefono || 'No registrado'
+        },
+        local: this.local.nombre,
+        factura: {
+          numero: this.numero,
+        }
+      });
 
     return qrData;
   }
