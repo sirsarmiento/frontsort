@@ -274,68 +274,6 @@ export class ModalCuponComponent implements OnInit {
 
   imprimirPDF(pdf: jsPDF): void {
     pdf.save(`cupones-${this.documento}.pdf`);
-    // // Crear blob del PDF
-    // const pdfBlob = pdf.output('blob');
-    
-    // // Crear URL para el blob
-    // const pdfUrl = URL.createObjectURL(pdfBlob);
-    
-    // // Crear iframe para impresión
-    // const iframe = document.createElement('iframe');
-    // iframe.style.display = 'none';
-    // iframe.src = pdfUrl;
-    
-    // document.body.appendChild(iframe);
-    
-    // iframe.onload = () => {
-    //   try {
-    //     // Intentar imprimir automáticamente
-    //     iframe.contentWindow?.print();
-        
-    //     // Limpiar solo cuando se complete la impresión o se cancele
-    //     iframe.contentWindow?.addEventListener('afterprint', () => {
-    //       // Esperar un poco más antes de limpiar
-    //       setTimeout(() => {
-    //         document.body.removeChild(iframe);
-    //         URL.revokeObjectURL(pdfUrl);
-    //       }, 500);
-    //     });
-        
-    //     // Timeout de seguridad por si el evento afterprint no se dispara
-    //     setTimeout(() => {
-    //       if (document.body.contains(iframe)) {
-    //         document.body.removeChild(iframe);
-    //         URL.revokeObjectURL(pdfUrl);
-    //       }
-    //     }, 30000); // 30 segundos como timeout de seguridad
-        
-    //   } catch (error) {
-    //     console.error('Error al imprimir:', error);
-        
-    //     // Fallback: Descargar PDF si la impresión automática falla
-    //     this.descargarPDF(pdf);
-        
-    //     document.body.removeChild(iframe);
-    //     URL.revokeObjectURL(pdfUrl);
-        
-    //     Swal.fire({
-    //       icon: 'info',
-    //       title: 'PDF Listo',
-    //       text: 'El PDF se ha descargado. Por favor, imprímalo manualmente.',
-    //       confirmButtonText: 'Aceptar'
-    //     });
-    //   }
-    // };
-  }
-
-  // Método alternativo para descargar el PDF
-  private descargarPDF(pdf: jsPDF): void {
-    pdf.save(`cupones-${this.numero}.pdf`);
-  }
-
-  onEmail() {
-    // Lógica para enviar el cupón por email
-    console.log('Enviar cupón por email');
   }
 
   closeModal() {

@@ -8,6 +8,7 @@ import { Bill, BillQr, ClientBill } from 'src/app/core/models/Lotery/bill';
 import { BillService } from 'src/app/core/services/Lotery/bill.service';
 import { ModalGenericComponent } from 'src/app/views/shared/components/modal-generic/modal-generic.component';
 import { ModalCuponComponent } from 'src/app/views/shared/components/modal-cupon/modal-cupon.component';
+import { ModalImageBillComponent } from 'src/app/views/shared/components/modal-image-bill/modal-image-bill.component';
 
 @Component({
   selector: 'app-bill',
@@ -36,17 +37,34 @@ export class BillComponent implements OnInit {
 
   getBills(){
     this.billService.getAll().subscribe((resp: any) => {
+      console.log(resp.data);
       this.initTable(resp.data);
     });
   }
+  
 
   initTable(bill: Bill[]){
     this.dataSource = new MatTableDataSource(bill);
+    // Definir el filterPredicate para buscar en campos anidados
+    this.dataSource.filterPredicate = (data: Bill, filter: string): boolean => {
+      // Concatenamos los valores de los campos que queremos filtrar
+      const dataStr = 
+        data.cliente.nroDocumentoIdentidad.toLowerCase() + 
+        data.cliente.nombreCompleto.toLowerCase() + 
+        data.local['nombre'].toLowerCase() + 
+        data.numero + 
+        data.fecha + 
+        data.monto + 
+        data.tickets;
+      // Transformamos el filter a minúsculas
+      const transformedFilter = filter.trim().toLowerCase();
+      return dataStr.indexOf(transformedFilter) !== -1;
+    };
+
     if (this.paginator) {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     }
-
     this.loading = false;
   }
 
@@ -70,7 +88,6 @@ export class BillComponent implements OnInit {
   }
 
   onCupon(row: BillQr){
-    console.log(row);
     this.matDialog.open(ModalCuponComponent, {
       data: { bill:  row },
       width: '80%',
@@ -85,6 +102,15 @@ export class BillComponent implements OnInit {
       width: '38%',
       disableClose: true,
       id: 'modal-params'
+    });
+  }
+
+  addBill(id: number){
+    this.matDialog.open(ModalImageBillComponent, {
+      data: { id:  id },
+      width: '40%',
+      disableClose: true,
+      id: 'modal-add-image-bill'
     });
   }
 }

@@ -44,8 +44,8 @@
           </ng-container>
 
           <ng-container matColumnDef="cliente">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cliente</th>
-            <td mat-cell *matCellDef="let row" [ngClass]="'w-45'" [matTooltip]="row.cliente.nombreCompleto"> {{ row.cliente.nombreCompleto }} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header >Cliente</th>
+            <td mat-cell *matCellDef="let row" [ngClass]="'w-45'" [matTooltip]="row.cliente.telefono"> {{ row.cliente.nombreCompleto }} </td>
           </ng-container>
 
           <ng-container matColumnDef="local">
@@ -90,9 +90,14 @@
                 (click)="onViewDocument(row.cliente.fotoCedula)">
                 <mat-icon class="font-weight-boldest">portrait</mat-icon>
               </button>
-               <button mat-icon-button class="edit-color" matTooltip="Ver Factura" 
+               <button *ngIf="row.fotoBill != null" mat-icon-button class="edit-color" matTooltip="Ver Factura" 
                 (click)="onViewDocument(row.fotoBill)">
                 <mat-icon class="font-weight-boldest">receipt</mat-icon>
+              </button>
+
+              <button *ngIf="row.fotoBill === null" mat-icon-button class="edit-color" matTooltip="Agregar Factura" 
+                (click)="addBill(row.id)">
+                <mat-icon class="font-weight-boldest">file_upload</mat-icon>
               </button>
             </td>
           </ng-container>
