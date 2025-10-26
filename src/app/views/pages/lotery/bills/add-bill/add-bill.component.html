@@ -286,7 +286,7 @@
 
           <div class="row">
             <div class="col-12">
-              <video #videoElement autoplay playsinline  class="preview-image"></video>
+              <video #videoElement autoplay playsinline  class="preview-image" *ngIf="showCameraDialog && !capturedImagePreview"></video>
               <!-- Vista previa de la imagen capturada -->
               <div class="file-upload-section">
                 <div *ngIf="capturedImage" class="file-info mt-3">
@@ -350,19 +350,7 @@
 
               <!-- Cámara activa -->
               <div *ngIf="isCameraAvailable && isCameraReady && !capturedImagePreview" class="camera-active" style="width: 90%">
-                <div class="camera-container">
-                  <video #videoElement 
-                        autoplay 
-                        playsinline 
-                        muted
-                        class="camera-video"
-                        (loadedmetadata)="onVideoLoaded()"
-                        (canplay)="onVideoCanPlay()"
-                        >
-                  </video>
-                  <canvas #canvasElement class="camera-canvas" style="display: none;"></canvas>
-                </div>
-                
+                               
                 <!-- Controles -->
                 <div class="camera-controls">
                   <button mat-fab color="primary" (click)="captureImage()"
@@ -376,6 +364,20 @@
                     Cancelar
                   </button>
                 </div>
+                
+                <div class="camera-container">
+                  <video #videoElement 
+                        autoplay 
+                        playsinline 
+                        muted
+                        class="camera-video"
+                        (loadedmetadata)="onVideoLoaded()"
+                        (canplay)="onVideoCanPlay()"
+                        >
+                  </video>
+                  <canvas #canvasElement class="camera-canvas" style="display: none;"></canvas>
+                </div>
+ 
               </div>
 
               <!-- Vista previa -->

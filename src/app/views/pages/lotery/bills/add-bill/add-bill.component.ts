@@ -499,7 +499,7 @@ export class AddBillComponent implements OnInit {
   // Método para abrir el diálogo de la cámara
   async openCameraDialog(): Promise<void> {
     this.showCameraDialog = true;
-    
+  
      // Forzar detección de cambios para mostrar el modal
     this.cdr.detectChanges();
     
