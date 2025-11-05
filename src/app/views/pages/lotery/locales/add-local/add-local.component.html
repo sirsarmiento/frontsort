@@ -21,13 +21,7 @@
             </mat-form-field>
           </div>
           <div class="col-6">
-              <mat-form-field>
-                  <mat-label>Monto Ref.</mat-label>
-                  <input matInput currencyMask formControlName="monto" maxlength="25" [ngClass]="{ 'is-invalid': submitted && f.monto.errors }" >
-                  <mat-error *ngIf="submitted && f.monto.errors">
-                    <mat-error *ngIf="f.monto.errors.required">Ingrese monto total</mat-error>
-                  </mat-error>
-              </mat-form-field>
+`
           </div>
         </div>
 

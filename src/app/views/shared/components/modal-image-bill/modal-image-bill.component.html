@@ -1,7 +1,8 @@
 <div class="main-content">
     <div class="row">
         <div class="col-12 align-right">
-            <button *ngIf="userRoles?.includes('ADMINISTRADOR')" 
+            <!-- *ngIf="userRoles?.includes('ADMINISTRADOR')"  no siempre esta el supervisor -->
+            <button 
                     mat-icon-button 
                     matTooltip="Guardar" 
                     class="edit-color" 

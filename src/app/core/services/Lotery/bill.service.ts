@@ -103,6 +103,11 @@ export class BillService extends HttpService {
       return this.http.put(`${ environment.apiUrl }/factura/${id}/print`, formData );
   }
 
+  editTelefono(id: number, numero: string) {
+    const formData = { numero: numero };
+    return this.http.put(`${ environment.apiUrl }/telefono/${id}`, formData );
+  }
+
   // Método alternativo más simple sin progreso
   uploadBillPhoto(facturaId: number, file: File): Observable<any> {
     const formData = new FormData();

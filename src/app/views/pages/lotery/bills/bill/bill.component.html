@@ -87,17 +87,20 @@
                   <mat-icon class="font-weight-boldest">confirmation_number</mat-icon>
               </button>
               <button mat-icon-button class="edit-color" matTooltip="Ver Cédula" 
-                (click)="onViewDocument(row.cliente.fotoCedula)">
+                (click)="onViewDocument(row.cliente.id, row.cliente.fotoCedula)">
                 <mat-icon class="font-weight-boldest">portrait</mat-icon>
               </button>
                <button *ngIf="row.fotoBill != null" mat-icon-button class="edit-color" matTooltip="Ver Factura" 
-                (click)="onViewDocument(row.fotoBill)">
+                (click)="onViewDocument(row.id, row.fotoBill)">
                 <mat-icon class="font-weight-boldest">receipt</mat-icon>
               </button>
-
               <button *ngIf="row.fotoBill === null" mat-icon-button class="edit-color" matTooltip="Agregar Factura" 
                 (click)="addBill(row.id)">
                 <mat-icon class="font-weight-boldest">file_upload</mat-icon>
+              </button>
+              <button mat-icon-button class="edit-color" matTooltip="Ver Teléfono" 
+                (click)="onPhone(row)">
+                <mat-icon class="font-weight-boldest">phone</mat-icon>
               </button>
             </td>
           </ng-container>

@@ -41,7 +41,7 @@ const routes: Routes = [
         path: 'locales',
         loadChildren: () => import('../lotery/locales/locales.module').then(m => m.LocalesModule),
         canActivate: [RoleGuard],
-        data: { roles: ['ADMINISTRADOR'] }
+        data: { roles: ['ADMINISTRADOR', 'PROMOTOR'] }
       },
       {
         path: 'bills',

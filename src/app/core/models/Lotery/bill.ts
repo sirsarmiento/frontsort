@@ -21,6 +21,7 @@ export class ClientBill {
     nroDocumentoIdentidad: string;
     nombreCompleto: string;
     telefono: string;
+    telefonoId: number;
     fotoCedula: string;
 }
 

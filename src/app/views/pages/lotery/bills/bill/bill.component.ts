@@ -9,6 +9,7 @@ import { BillService } from 'src/app/core/services/Lotery/bill.service';
 import { ModalGenericComponent } from 'src/app/views/shared/components/modal-generic/modal-generic.component';
 import { ModalCuponComponent } from 'src/app/views/shared/components/modal-cupon/modal-cupon.component';
 import { ModalImageBillComponent } from 'src/app/views/shared/components/modal-image-bill/modal-image-bill.component';
+import { ModalPhoneComponent } from 'src/app/views/shared/components/modal-phone/modal-phone.component';
 
 @Component({
   selector: 'app-bill',
@@ -21,6 +22,8 @@ export class BillComponent implements OnInit {
   displayedColumns: string[] = ['cedula','cliente', 'local', 'numero', 'fecha', 'monto', 'cupones' , 'actions'];
   dataSource: MatTableDataSource<Bill>;
   totalDepreciacionMensual: number = 0;
+
+  bills: Bill[] = [];
     
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
@@ -37,8 +40,8 @@ export class BillComponent implements OnInit {
 
   getBills(){
     this.billService.getAll().subscribe((resp: any) => {
-      console.log(resp.data);
-      this.initTable(resp.data);
+      this.bills = resp.data;
+      this.initTable(this.bills);
     });
   }
   
@@ -96,10 +99,10 @@ export class BillComponent implements OnInit {
     });
   }
 
-  onViewDocument(fotoCedula: string){
+  onViewDocument(id: number, fotoCedula: string){
     this.matDialog.open(ModalGenericComponent, {
-      data: { urlPhoto:  fotoCedula },
-      width: '38%',
+      data: { id: id, urlPhoto:  fotoCedula },
+      width: '80%',
       disableClose: true,
       id: 'modal-params'
     });
@@ -108,9 +111,30 @@ export class BillComponent implements OnInit {
   addBill(id: number){
     this.matDialog.open(ModalImageBillComponent, {
       data: { id:  id },
-      width: '40%',
+      width: '80%',
       disableClose: true,
       id: 'modal-add-image-bill'
+    });
+  }
+
+  onPhone(row: Bill){
+    const dialogRef = this.matDialog.open(ModalPhoneComponent, {
+      data: { phoneId: row.cliente.telefonoId, phone: row.cliente.telefono },
+      width: '400px',
+      disableClose: true,
+      id: 'modal-phone'
+    });
+
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data != undefined) {
+        this.bills = this.bills.filter((value) => {
+          if (value.cliente.telefonoId === data.phoneId.value) {
+            value.cliente.telefono = data.nroTelefono.value;
+          }
+
+          return true;
+        });
+      }
     });
   }
 }

@@ -3,20 +3,26 @@
     <div class="modal-title">
       Documento
     </div>
+    <button 
+            mat-icon-button 
+            matTooltip="Guardar" 
+            class="edit-color" 
+            (click)="onSave()"
+            [disabled]="isLoading || !selectedFile">
+        <mat-icon class="font-weight-boldest">save</mat-icon>
+    </button>
     <button class="close-button" mat-icon-button matTooltip="Cerrar" (click)="closeModal()">
       <mat-icon class="close-icon">close</mat-icon>
     </button>
   </div>
 
   <div class="modal-content">
-    <div class="image-container">
+    <!-- Mostrar imagen solo si existe urlPhoto -->
+    <div *ngIf="urlPhoto" class="image-container">
       <img [src]="urlPhoto" alt="Documento" class="modal-image">
-      <div class="image-overlay" *ngIf="!urlPhoto">
-        <mat-icon class="placeholder-icon">image</mat-icon>
-        <p>Imagen no disponible</p>
-      </div>
     </div>
     
+    <!-- Mostrar acciones solo si existe imagen -->
     <div class="image-actions" *ngIf="urlPhoto">
       <button mat-stroked-button (click)="zoomIn()" class="action-button">
         <mat-icon>zoom_in</mat-icon>
@@ -31,5 +37,65 @@
         Rotar
       </button>
     </div>
+
+    <!-- Mostrar área de subir archivo cuando no hay imagen -->
+    <div *ngIf="!urlPhoto" class="file-upload-area prominent-upload">
+      <input type="file" #fileInput (change)="onFileSelected($event)" 
+             accept=".jpg,.jpeg,.png,.pdf" hidden>
+      
+      <div class="upload-placeholder">
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <h3>No hay documento cargado</h3>
+        <p>Selecciona un archivo para comenzar</p>
+        <button mat-raised-button color="primary" 
+                (click)="fileInput.click()"
+                [disabled]="isLoading">
+            <mat-icon>cloud_upload</mat-icon>
+            Seleccionar Archivo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Área para reemplazar archivo (solo se muestra cuando ya hay imagen) -->
+  <div *ngIf="urlPhoto" class="row mt-3">
+      <div class="col-12">
+          <div class="file-upload-area">
+              <input type="file" #fileInputReplace (change)="onFileSelected($event)" 
+                     accept=".jpg,.jpeg,.png,.pdf" hidden>
+              
+              <button mat-raised-button color="primary" 
+                      (click)="fileInputReplace.click()"
+                      [disabled]="isLoading">
+                  <mat-icon>cloud_upload</mat-icon>
+                  Reemplazar Archivo
+              </button>
+              
+              <div *ngIf="selectedFile" class="file-info mt-2">
+                  <p><strong>Archivo seleccionado:</strong> {{selectedFile.name}}</p>
+                  <p><strong>Tamaño:</strong> {{(selectedFile.size / 1024 / 1024).toFixed(2)}} MB</p>
+                  <button mat-icon-button color="warn" (click)="removeFile()">
+                      <mat-icon>delete</mat-icon>
+                  </button>
+              </div>
+
+              <!-- Vista previa de imagen -->
+              <div *ngIf="imagePreview && isImageFile(selectedFile!)" class="image-preview mt-3">
+                  <img [src]="imagePreview" alt="Vista previa" class="preview-image">
+              </div>
+
+              <!-- Indicador para PDF -->
+              <div *ngIf="selectedFile && !isImageFile(selectedFile)" class="pdf-indicator mt-3">
+                  <mat-icon class="pdf-icon">picture_as_pdf</mat-icon>
+                  <p>Documento PDF seleccionado</p>
+              </div>
+
+              <!-- Loading indicator -->
+              <div *ngIf="isLoading" class="loading-indicator mt-3">
+                  <mat-spinner diameter="30"></mat-spinner>
+                  <span class="ml-2">Subiendo archivo...</span>
+              </div>
+          </div>
+      </div>
   </div>
 </div>

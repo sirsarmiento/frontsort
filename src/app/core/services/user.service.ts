@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpService } from './http.service';
 import { Responsibles, User, userObservable } from '../models/user';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { SelectOption } from '../models/select-option';
 import { ToastrService } from 'ngx-toastr';
 import { MenuItem } from '../models/menu.model';
@@ -62,6 +62,15 @@ export class UserService extends HttpService {
 
   async uploadAvatar(formData: FormData) {
     await firstValueFrom(this.post(environment.apiUrl, '/user/upload/photo', formData));
+  }
+
+  uploadCiPhoto(userId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('photo', file, file.name);
+
+    return this.http.post(`${environment.apiUrl}/user/upload/photo/${userId}`, formData, {
+      responseType: 'json'
+    });
   }
 
   /**

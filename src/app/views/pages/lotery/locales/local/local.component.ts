@@ -6,13 +6,14 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { Local } from 'src/app/core/models/Lotery/local';
 import { LocalService } from 'src/app/core/services/Lotery/local.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-local',
   templateUrl: './local.component.html'
 })
 export class LocalComponent implements OnInit {
-
+  userRoles: any[] = [];
   loading = true;
   selectedRow;
   displayedColumns: string[] = [ 'nombre', 'monto', 'actions'];
@@ -27,7 +28,11 @@ export class LocalComponent implements OnInit {
     private localService: LocalService,
     private router: Router,
     public matDialog: MatDialog,
-  ) { }
+    private authService: AuthService
+  ) { 
+    const currentUser = this.authService.currentUser;
+    this.userRoles = currentUser.roles;
+  }
 
   ngOnInit(): void {
     this.getLocales();

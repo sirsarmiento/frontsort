@@ -36,6 +36,7 @@ import { ModalCuponComponent } from './components/modal-cupon/modal-cupon.compon
 
 import { QRCodeModule } from 'angularx-qrcode';
 import { ModalImageBillComponent } from './components/modal-image-bill/modal-image-bill.component';
+import { ModalPhoneComponent } from './components/modal-phone/modal-phone.component';
 
 export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
   align: "left",
@@ -48,7 +49,7 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
 };
 
 @NgModule({
-  declarations: [BaseComponent, ModalCuponComponent, ModalGenericComponent, ModalImageBillComponent],
+  declarations: [BaseComponent, ModalCuponComponent, ModalGenericComponent, ModalImageBillComponent, ModalPhoneComponent],
   imports: [
     CommonModule,
     RouterModule,
@@ -89,6 +90,7 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     ModalCuponComponent,
     ModalGenericComponent,
     ModalImageBillComponent,
+    ModalPhoneComponent,
     NgxDatatableModule,
     DataTablesModule,
     MatTableModule,

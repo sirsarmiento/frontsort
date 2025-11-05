@@ -51,7 +51,7 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef> Acciones </th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button class="edit-color" matTooltip="Editar"     
+              <button mat-icon-button class="edit-color" matTooltip="Editar"  *ngIf="userRoles?.includes('ADMINISTRADOR')"    
               (click)="onEdit(row)">
                   <mat-icon class="font-weight-boldest">create</mat-icon>
               </button>
