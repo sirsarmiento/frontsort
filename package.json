@@ -35,6 +35,8 @@
     "@ngx-loading-bar/http-client": "^6.0.2",
     "@ngx-loading-bar/router": "^6.0.2",
     "@popperjs/core": "^2.11.5",
+    "@superset-ui/embedded-sdk": "^0.1.0-alpha.7",
+    "@superset-ui/switchboard": "^0.20.3",
     "@sweetalert2/ngx-sweetalert2": "^11.0.0",
     "@swimlane/ngx-datatable": "^20.0.0",
     "angular-archwizard": "^7.0.0",

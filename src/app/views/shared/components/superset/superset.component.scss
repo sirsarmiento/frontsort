@@ -1,0 +1,8 @@
+.app-content{    
+    width: 100%;
+}
+
+::ng-deep iframe {
+    width: 100% !important;
+    height: 800px !important; /* ajusta la altura según sea necesario */
+  }
